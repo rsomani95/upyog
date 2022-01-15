@@ -16,6 +16,7 @@ import time
 import warnings
 
 from collections import OrderedDict, defaultdict, namedtuple
+from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum

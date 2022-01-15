@@ -30,22 +30,60 @@ def calc_offset(thickness):
     return int((thickness - 1) / 2)
 
 
-def _draw_vertical_bars(img, width_percentages: List[float], thickness=5, opacity=0.4):
+def _draw_vertical_bars(img, width_percentages, fill, thickness, opacity):
     W, H = img.size
-    ws = [W * w for w in width_percentages]
     off = offset = calc_offset(thickness)
 
-    xyxys = [(w - off, 0, w + off, H) for w in ws]
-    return _draw_rectangles(img, xyxys, opacity=opacity)
+    xyxys = []
+    for w in width_percentages:
+        if isinstance(w, float):
+            w = W * w
+            xyxys += [(w - off, 0, w + off, H)]
+        elif isinstance(w, (tuple, list)):
+            assert len(w) == 2
+            start, end = w
+            xyxys += [(W * start, 0, W * end, H)]
+
+    return _draw_rectangles(img, xyxys, opacity=opacity, fill=fill)
 
 
-def _draw_horizontal_bars(img, height_percentages, thickness=5, opacity=0.4):
+@fastcore.patch
+def draw_vertical_bars(
+    self: Image.Image,
+    width_percentages: List[Union[float, tuple]],
+    fill=(255, 255, 255),
+    thickness=5,
+    opacity=0.4,
+):
+    return _draw_vertical_bars(self, width_percentages, fill, thickness, opacity)
+
+
+def _draw_horizontal_bars(img, height_percentages, fill, thickness, opacity):
     W, H = img.size
-    hs = [H * h for h in height_percentages]
     off = offset = calc_offset(thickness)
 
-    xyxys = [(0, h - off, W, h + off) for h in hs]
-    return _draw_rectangles(img, xyxys, opacity=opacity)
+    xyxys = []
+    for h in height_percentages:
+        if isinstance(h, float):
+            h = H * h
+            xyxys += [(0, h - off, W, h + off)]
+        elif isinstance(h, (tuple, list)):
+            assert len(h) == 2
+            start, end = h
+            xyxys += [(0, H * start, W, H * end)]
+
+    return _draw_rectangles(img, xyxys, opacity=opacity, fill=fill)
+
+
+@fastcore.patch
+def draw_horizontal_bars(
+    self: Image.Image,
+    height_percentages: List[Union[float, tuple]],
+    fill=(255, 255, 255),
+    thickness=5,
+    opacity=0.4,
+):
+    return _draw_horizontal_bars(self, height_percentages, fill, thickness, opacity)
 
 
 @fastcore.patch
@@ -60,20 +98,6 @@ def draw_rectangles(
 ):
     "Returns a copy of the image, no modifications are made inplace"
     return _draw_rectangles(self, xyxys, fill, opacity)
-
-
-@fastcore.patch
-def draw_vertical_bars(
-    self: Image.Image, width_percentages: List[float], thickness=5, opacity=0.4
-):
-    return _draw_vertical_bars(self, width_percentages, thickness, opacity)
-
-
-@fastcore.patch
-def draw_horizontal_bars(
-    self: Image.Image, height_percentages, thickness=5, opacity=0.4
-):
-    return _draw_horizontal_bars(self, height_percentages, thickness, opacity)
 
 
 ImageCollection = Collection[Image.Image]

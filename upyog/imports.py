@@ -1,9 +1,16 @@
-import json, mimetypes
+import argparse
+import enum
+import functools
+import inspect
+import json
+import mimetypes
 import operator
 import os
 import re
 import shutil
 import socket
+import sys
+import typing
 import uuid
 import warnings
 
@@ -13,6 +20,7 @@ from datetime import datetime
 from functools import partial, reduce
 from pathlib import Path
 from pprint import pprint
+from types import SimpleNamespace
 from typing import *
 
 import fastcore.all as fastcore
@@ -25,17 +33,9 @@ import rich
 
 from loguru import logger
 from os_utilities.utils import *
-from PIL import Image, ImageFile, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFile, ImageFont
 from PIL import features as PILFeatures
 from rich.progress import track
 from rich.traceback import install
 from tqdm.auto import tqdm
 from typing_extensions import Literal
-
-
-install()
-logger.opt(colors=True)
-tqdm.pandas()
-
-ImageFile.LOAD_TRUNCATED_IMAGES = True
-# PILFeatures.pilinfo()

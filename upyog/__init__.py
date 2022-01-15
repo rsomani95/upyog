@@ -1,5 +1,4 @@
 from upyog.imports import *
-from upyog.cli import *
 
 
 install()

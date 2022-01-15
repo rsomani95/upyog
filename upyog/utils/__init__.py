@@ -1,1 +1,1 @@
-from upyog.utils.utils import *
+from .utils import *

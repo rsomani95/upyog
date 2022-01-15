@@ -32,7 +32,6 @@ import pyperclip
 import rich
 
 from loguru import logger
-from os_utilities.utils import *
 from PIL import Image, ImageDraw, ImageFile, ImageFont
 from PIL import features as PILFeatures
 from rich.progress import track

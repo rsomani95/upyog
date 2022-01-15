@@ -20,6 +20,13 @@ def resize_pad(
     return resize_with_padding(self, size_WH, fill, pad_location)
 
 
+def get_ratio(from_WH, to_WH) -> np.ndarray:
+    W, H = from_WH
+    to_W, to_H = to_WH
+
+    return min([to_H / H, to_W / W])
+
+
 def resize_with_padding(
     img: Image.Image,
     target_WH,
@@ -29,10 +36,7 @@ def resize_with_padding(
     to_W, to_H = target_WH
     W, H = img.size
 
-    ratio = float(to_W) / max([H, W])
-    if ratio > 1:
-        ratio = float(to_H) / min([H, W])
-
+    ratio = get_ratio(img.size, target_WH)
     W, H = int(ratio * W), int(ratio * H)
 
     if pad_location == "top":

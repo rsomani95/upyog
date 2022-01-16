@@ -161,7 +161,7 @@ color = lambda r, g, b: f"rgb({r},{g},{b})"
 
 @fastcore.patch
 def draw_text(
-    self: PIL.Image.Image,
+    self: Image.Image,
     text: Union[str, List[str]],
     font_size: float = None,
     font_color: Union[tuple, int] = (220, 220, 220),

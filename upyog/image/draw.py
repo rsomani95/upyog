@@ -4,6 +4,7 @@ from upyog.imports import *
 def _draw_rectangle(
     img: Image.Image, xyxy: tuple, fill: Optional[tuple] = (255, 255, 255), opacity=0.25
 ):
+    # NOTE: This draws a _filled_ rectangle
     new = Image.new("RGBA", img.size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(new)
     if fill:
@@ -15,6 +16,35 @@ def _draw_rectangle(
     img = img.convert("RGB")
 
     return img
+
+
+# TODO: Use ImageDraw.Draw
+def draw_rounded_rectangle(
+    img: Image.Image, xyxy: tuple, radius=10, color="white", opacity=1.0
+):
+    """Draw a rounded rectangle"""
+    from aggdraw import Pen, Draw
+
+    xl, yu, xr, yl = xyxy
+    draw = Draw(img)
+    pen = Pen(color, opacity=int(opacity * 255), width=1)
+    r = radius
+
+    # fmt: off
+    draw.line((xl+r/2, yu, xr-r/2, yu), pen)      # Top Horizontal
+    draw.arc((xr-r, yu, xr, yu+r), 0, 90, pen)    # Upper right
+
+    draw.line((xr, yu+r/2, xr, yl-r/2), pen)      # Right Vertical
+    draw.arc((xr-r, yl-r, xr, yl), 270, 360, pen) # Lower right
+
+    draw.line((xr-r/2, yl, xl+r/2, yl), pen)      # Bottom Horizontal
+    draw.arc((xl+r, yl, xl, yl-r), 0, 90, pen)    # Lower left
+
+    draw.line((xl, yl-r/2, xl, yu+r/2), pen)      # Left Vertical
+    draw.arc((xl, yu, xl+r, yu+r), 90, 180, pen)  # Upper left
+    # fmt: on
+
+    return draw.flush()
 
 
 def _draw_rectangles(
@@ -270,19 +300,140 @@ def draw_text(
             y = 1 if i == 0 else i * font_size * 1.5
             xy = (10, y)
 
-        if font_border:
-            # thin border
-            x, y = xy
-            draw.text((x - 1, y), label, font=font, fill="black")
-            draw.text((x + 1, y), label, font=font, fill="black")
-            draw.text((x, y - 1), label, font=font, fill="black")
-            draw.text((x, y + 1), label, font=font, fill="black")
-
-            # thicker border
-            draw.text((x - 1, y - 1), label, font=font, fill="black")
-            draw.text((x + 1, y - 1), label, font=font, fill="black")
-            draw.text((x - 1, y + 1), label, font=font, fill="black")
-            draw.text((x + 1, y + 1), label, font=font, fill="black")
-
-        draw.text(xy, text=label, fill=fcolor, font=font)
+        draw = _write_text(
+            label, xy, draw, font, bordered=font_border, border_color="black"
+        )
     return img
+
+
+def _write_text(
+    text,
+    xy,
+    draw: ImageDraw.Draw,
+    font: ImageFont.ImageFont,
+    bordered=True,
+    border_color="black",
+    font_color="white",
+    anchor=None,
+):
+    label = text
+    x, y = xy
+    if bordered:
+        draw.text((x - 1, y), label, border_color, font, anchor)
+        draw.text((x + 1, y), label, border_color, font, anchor)
+        draw.text((x, y - 1), label, border_color, font, anchor)
+        draw.text((x, y + 1), label, border_color, font, anchor)
+
+        # thicker border
+        draw.text((x - 1, y - 1), label, border_color, font, anchor)
+        draw.text((x + 1, y - 1), label, border_color, font, anchor)
+        draw.text((x - 1, y + 1), label, border_color, font, anchor)
+        draw.text((x + 1, y + 1), label, border_color, font, anchor)
+
+    draw.text(xy, text, font_color, font, anchor)
+    return draw
+
+
+def draw_box_label(
+    img,
+    xyxy,
+    label,
+    font_path,
+    base_font_size=20,
+    pad_percentage: float = 0.03,
+    text_color=(255, 255, 255),
+    location: Literal["bottom", "top"] = "bottom",
+):
+    box = Box(xyxy)
+    draw = ImageDraw.Draw(img)
+    font = ImageFont.FreeTypeFont(font_path, size=base_font_size)
+    pad = box.height * pad_percentage
+
+    # Dynamically adjust font size to fit the bounding box
+    text_box = draw.textbbox(box.bottom_center, label, font, anchor="mt")
+    text_box = Box(text_box)
+    if location == "bottom":
+        text_box.adjust("y2", -pad)
+    else:
+        text_box.adjust("y1", pad)
+
+    while not (text_box.height > box.height) and (text_box.width > box.width):
+        font = ImageFont.FreeTypeFont(font_path, size=base_font_size)
+        text_box = Box(draw.textbbox(box.bottom_center, label, font, anchor="mt"))
+        text_box.adjust("x1", -pad)
+        text_box.adjust("x2", pad)
+
+        base_font_size -= 1
+
+    _box = deepcopy(box)
+    if location == "bottom":
+        _box.adjust("y2", -pad)
+    else:
+        _box.adjust("y1", pad)
+
+    # draw.text(_box.bottom_center, label, text_color, font, anchor="ms")
+    text_xyxy = _box.bottom_center if location == "bottom" else _box.top_center
+    anchor = "ms" if location == "bottom" else "mt"
+    draw = _write_text(
+        label,
+        text_xyxy,
+        draw,
+        font,
+        bordered=True,
+        border_color="black",
+        font_color=text_color,
+        anchor=anchor,
+    )
+
+    return img
+
+
+class Box:
+    def __init__(self, xyxy):
+        self._xyxy = xyxy
+        self.x1, self.y1, self.x2, self.y2 = xyxy
+        self.setup()
+
+    def adjust(self, dim: str, amt):
+        assert dim in ["x1", "x2", "y1", "y2"]
+        setattr(self, dim, getattr(self, dim) + amt)
+        self.setup()
+
+    def setup(self):
+        self._dimensions()
+        self._centers()
+        self._corners()
+        self._points()
+
+    def _dimensions(self):
+        self.height = self.y2 - self.y1
+        self.width = self.x2 - self.x1
+        self.area = self.height * self.width
+
+    def _centers(self):
+        self.center_horz = self.x1 + self.width / 2
+        self.center_vert = self.y1 + self.height / 2
+        self.center = (self.center_horz, self.center_vert)
+
+    def _corners(self):
+        self.top_left = (self.x1, self.y1)
+        self.bottom_right = (self.x2, self.y2)
+        self.top_right = (self.x2, self.y1)
+        self.bottom_left = (self.x1, self.y1)
+
+    def _points(self):
+        self.top_center = (self.center_horz, self.y1)
+        self.bottom_center = (self.center_horz, self.y2)
+        self.right_center = (self.x2, self.center_vert)
+        self.left_center = (self.x1, self.center_vert)
+
+    @property
+    def cxcywh(self):
+        return (self.center_horz, self.center_vert, self.width, self.height)
+
+    @property
+    def xyxy(self):
+        return (self.x1, self.y1, self.x2, self.y2)
+
+    def __repr__(self):
+        return f"Box({self.x1}, {self.y1}, {self.x2}, {self.y2})"

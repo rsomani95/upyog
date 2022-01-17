@@ -1,6 +1,8 @@
 from .draw import *
 from .composition import *
 
+__all__ = ["Visualiser"]
+
 
 class Visualiser:
     def __init__(self, img: Image.Image, font_path: Optional[str] = None, font_size=30):
@@ -8,6 +10,7 @@ class Visualiser:
         self.img = deepcopy(img) if copy else img
         self.base_font_size = font_size
 
+        self.font_path = font_path
         if not font_path:
             self.font_path = str(
                 Path(__file__).parent.parent.parent / "assets" / "EuroStyleNormal.ttf"
@@ -42,6 +45,25 @@ class Visualiser:
     ):
         for xyxy in xyxys:
             self.img = self.draw_rectangle(xyxy, fill, opacity, width)
+        return self.img
+
+    def draw_ellipse(self, xyxy, fill=(255, 255, 255), opacity=0.8):
+        self.img = draw_ellipse(self.img, xyxy, fill, opacity)
+        return self.img
+
+    def draw_circle(self, xy, radius, fill=(255, 255, 255), opacity=0.8):
+        self.img = draw_circle(self.img, xy, radius, fill, opacity)
+        return self.img
+
+    def draw_keypoints(
+        self,
+        xys: List[Tuple[int, int]],
+        fill=(255, 255, 255),
+        opacity=0.8,
+        radius=None,
+        dynamic_radius=True,
+    ):
+        self.img = draw_keypoints(self.img, xys, fill, opacity, radius, dynamic_radius)
         return self.img
 
     def draw_rounded_rectangle(

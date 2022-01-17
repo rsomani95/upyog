@@ -1,6 +1,12 @@
 from upyog.imports import *
 
 
+def get_fill(fill: Tuple[int, int, int], opacity: float):
+    if fill:
+        opacity = int(opacity * 255)
+        return fill + (opacity,)
+
+
 def draw_rectangle(
     img: Image.Image,
     xyxy: tuple,
@@ -11,9 +17,7 @@ def draw_rectangle(
     # NOTE: This draws a _filled_ rectangle
     new = Image.new("RGBA", img.size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(new)
-    if fill:
-        opacity = int(opacity * 255)
-        fill = fill + (opacity,)
+    fill = get_fill(fill, opacity)
     draw.rectangle(xyxy, fill=fill, outline=fill, width=width)
 
     img = Image.alpha_composite(img.convert("RGBA"), new)
@@ -58,6 +62,54 @@ def draw_rounded_rectangle(
     # fmt: on
 
     return draw.flush()
+
+
+def draw_ellipse(img, xyxy, fill=(255, 255, 255), opacity=0.8):
+    new = Image.new("RGBA", img.size)
+    draw = ImageDraw.Draw(new)
+    fill = get_fill(fill, opacity)
+
+    draw.ellipse(xyxy, fill=fill, width=0, outline=None)
+    img = Image.alpha_composite(img.convert("RGBA"), new)
+    img = img.convert("RGB")
+
+    return img
+
+
+def draw_circle(img, xy, radius, fill=(255, 255, 255), opacity=0.8):
+    x, y, r = *xy, radius
+    xyxy = x - r, y - r, x + r, y + r
+    return draw_ellipse(img, xyxy, fill, opacity)
+
+
+def draw_keypoint(
+    img, xy, fill=(255, 255, 255), opacity=0.8, radius=None, dynamic_radius=True
+):
+    radius = radius or get_dynamic_radius(img)
+    return draw_circle(img, xy, radius, fill, opacity)
+
+
+def draw_keypoints(
+    img, xys, fill=(255, 255, 255), opacity=0.8, radius=None, dynamic_radius=True
+):
+    fills = None
+    if fill:
+        if not isinstance(fill[0], (list, tuple)):
+            fills = [fill] * len(xys)
+        else:
+            fills = fill
+
+    for xy, fill in zip(xys, fills):
+        img = draw_keypoint(img, xy, fill, opacity, radius, dynamic_radius)
+    return img
+
+
+def get_dynamic_radius(img):
+    # Borrowed from `icevision.draw_keypoints`
+    w, h = img.size
+    area = h * w
+    r = int(0.01867599 * (area ** 0.4422045))
+    return max(r, 1)
 
 
 def calc_offset(thickness):
@@ -298,7 +350,12 @@ def _write_text(
         draw.text((x - 1, y + 1), label, border_color, font, anchor)
         draw.text((x + 1, y + 1), label, border_color, font, anchor)
 
-    draw.text(xy, text, font_color, font, anchor)
+    try:
+        draw.text(xy, text, font_color, font, anchor)
+    except OSError as e:
+        msg = f"Failed to write text {text} due to error: {e}"
+        warnings.warn(msg)
+
     text_xyxy = draw.textbbox(xy, text, font, anchor)
 
     return draw, text_xyxy
@@ -321,6 +378,7 @@ def draw_text_within_xyxy(
     box = Box(xyxy)
     draw = ImageDraw.Draw(img)
     font = ImageFont.FreeTypeFont(font_path, size=base_font_size)
+    _font = font
     pad = box.height * pad_percentage
 
     # Dynamically adjust font size to fit the bounding box
@@ -331,56 +389,60 @@ def draw_text_within_xyxy(
     else:
         text_box.adjust("y1", pad)
 
-    while not (text_box.height > box.height) and (text_box.width > box.width):
-        font = ImageFont.FreeTypeFont(font_path, size=base_font_size)
-        text_box = Box(draw.textbbox(box.bottom_center, label, font, anchor="mt"))
-        text_box.adjust("x1", -pad)
-        text_box.adjust("x2", pad)
+    try:
+        while not (text_box.height > box.height) and (text_box.width > box.width):
+            font = ImageFont.FreeTypeFont(font_path, size=base_font_size)
+            text_box = Box(draw.textbbox(box.bottom_center, label, font, anchor="mt"))
+            text_box.adjust("x1", -pad)
+            text_box.adjust("x2", pad)
+            base_font_size -= 1
 
-        base_font_size -= 1
+        _box = deepcopy(box)
+        if location == "bottom":
+            _box.adjust("y2", -pad)
+        else:
+            _box.adjust("y1", pad)
 
-    _box = deepcopy(box)
-    if location == "bottom":
-        _box.adjust("y2", -pad)
-    else:
-        _box.adjust("y1", pad)
-
-    text_xyxy = _box.bottom_center if location == "bottom" else _box.top_center
-    anchor = "ms" if location == "bottom" else "mt"
-    draw, text_xyxy = _write_text(
-        label,
-        text_xyxy,
-        draw,
-        font,
-        bordered=bordered,
-        border_color="black",
-        font_color=text_color,
-        anchor=anchor,
-    )
-
-    if add_background:
-        # print(f"Before: {text_xyxy}")
-        _xyxy = Box(text_xyxy)
-        pad_x = _xyxy.height * 0.025
-        pad_y = _xyxy.height * 0.03
-        print(pad)
-        _xyxy.adjust("y1", -pad_y)
-        _xyxy.adjust("x1", -pad_x)
-        _xyxy.adjust("x2", pad_x)
-        _x1, _y1, _x2, _y2 = _xyxy.xyxy
-
-        # fmt: off
-        # FIXME: yuck...
-        x1,y1,x2,y2 = xyxy
-        if _x1 < x1: _x1 = x1
-        if _x2 > x2: _x2 = x2
-        if _y2 > y2: _y2 = y2
-        # if _y1 < y1: _y1 = xyxy[1]
-        # fmt: on
-
-        img = draw_rectangle(
-            img, (_x1, _y1, _x2, _y2), background_fill, background_opacity
+        text_xyxy = _box.bottom_center if location == "bottom" else _box.top_center
+        anchor = "ms" if location == "bottom" else "mt"
+        draw, text_xyxy = _write_text(
+            label,
+            text_xyxy,
+            draw,
+            font,
+            bordered=bordered,
+            border_color="black",
+            font_color=text_color,
+            anchor=anchor,
         )
+
+        if add_background:
+            # print(f"Before: {text_xyxy}")
+            _xyxy = Box(text_xyxy)
+            pad_x = _xyxy.height * 0.025
+            pad_y = _xyxy.height * 0.03
+            print(pad)
+            _xyxy.adjust("y1", -pad_y)
+            _xyxy.adjust("x1", -pad_x)
+            _xyxy.adjust("x2", pad_x)
+            _x1, _y1, _x2, _y2 = _xyxy.xyxy
+
+            # fmt: off
+            # FIXME: yuck...
+            x1,y1,x2,y2 = xyxy
+            if _x1 < x1: _x1 = x1
+            if _x2 > x2: _x2 = x2
+            if _y2 > y2: _y2 = y2
+            # if _y1 < y1: _y1 = xyxy[1]
+            # fmt: on
+
+            img = draw_rectangle(
+                img, (_x1, _y1, _x2, _y2), background_fill, background_opacity
+            )
+    except Exception as e:
+        larger_factor = text_box.area / box.area
+        msg = f"Failed to resize text. Estimated font size is {larger_factor}x larger than bbox area. Exception={e}"
+        warnings.warn(msg)
 
     return img
 

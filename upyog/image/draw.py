@@ -1,7 +1,7 @@
 from upyog.imports import *
 
 
-def _draw_rectangle(
+def draw_rectangle(
     img: Image.Image, xyxy: tuple, fill: Optional[tuple] = (255, 255, 255), opacity=0.25
 ):
     # NOTE: This draws a _filled_ rectangle
@@ -14,6 +14,15 @@ def _draw_rectangle(
 
     img = Image.alpha_composite(img.convert("RGBA"), new)
     img = img.convert("RGB")
+
+    return img
+
+
+def draw_rectangles(
+    img, xyxys: List[tuple], fill: Optional[tuple] = (255, 255, 255), opacity=0.25
+):
+    for xyxy in xyxys:
+        img = draw_rectangle(img, xyxy, fill, opacity)
 
     return img
 
@@ -47,20 +56,11 @@ def draw_rounded_rectangle(
     return draw.flush()
 
 
-def _draw_rectangles(
-    img, xyxys: List[tuple], fill: Optional[tuple] = (255, 255, 255), opacity=0.25
-):
-    for xyxy in xyxys:
-        img = _draw_rectangle(img, xyxy, fill, opacity)
-
-    return img
-
-
 def calc_offset(thickness):
     return int((thickness - 1) / 2)
 
 
-def _draw_vertical_bars(img, width_percentages, fill, thickness, opacity):
+def draw_vertical_bars(img, width_percentages, fill, thickness, opacity):
     W, H = img.size
     off = offset = calc_offset(thickness)
 
@@ -74,21 +74,10 @@ def _draw_vertical_bars(img, width_percentages, fill, thickness, opacity):
             start, end = w
             xyxys += [(W * start, 0, W * end, H)]
 
-    return _draw_rectangles(img, xyxys, opacity=opacity, fill=fill)
+    return draw_rectangles(img, xyxys, opacity=opacity, fill=fill)
 
 
-@fastcore.patch
-def draw_vertical_bars(
-    self: Image.Image,
-    width_percentages: List[Union[float, tuple]],
-    fill=(255, 255, 255),
-    thickness=5,
-    opacity=0.4,
-):
-    return _draw_vertical_bars(self, width_percentages, fill, thickness, opacity)
-
-
-def _draw_horizontal_bars(img, height_percentages, fill, thickness, opacity):
+def draw_horizontal_bars(img, height_percentages, fill, thickness, opacity):
     W, H = img.size
     off = offset = calc_offset(thickness)
 
@@ -102,32 +91,7 @@ def _draw_horizontal_bars(img, height_percentages, fill, thickness, opacity):
             start, end = h
             xyxys += [(0, H * start, W, H * end)]
 
-    return _draw_rectangles(img, xyxys, opacity=opacity, fill=fill)
-
-
-@fastcore.patch
-def draw_horizontal_bars(
-    self: Image.Image,
-    height_percentages: List[Union[float, tuple]],
-    fill=(255, 255, 255),
-    thickness=5,
-    opacity=0.4,
-):
-    return _draw_horizontal_bars(self, height_percentages, fill, thickness, opacity)
-
-
-@fastcore.patch
-def draw_rectangle(self: Image.Image, xyxy: tuple, fill=(255, 255, 255), opacity=0.25):
-    "Returns a copy of the image, no modifications are made inplace"
-    return _draw_rectangle(self, xyxy, fill, opacity)
-
-
-@fastcore.patch
-def draw_rectangles(
-    self: Image.Image, xyxys: List[tuple], fill=(255, 255, 255), opacity=0.25
-):
-    "Returns a copy of the image, no modifications are made inplace"
-    return _draw_rectangles(self, xyxys, fill, opacity)
+    return draw_rectangles(img, xyxys, opacity=opacity, fill=fill)
 
 
 ImageCollection = Collection[Image.Image]
@@ -300,7 +264,7 @@ def draw_text(
             y = 1 if i == 0 else i * font_size * 1.5
             xy = (10, y)
 
-        draw = _write_text(
+        draw, _ = _write_text(
             label, xy, draw, font, bordered=font_border, border_color="black"
         )
     return img
@@ -331,17 +295,23 @@ def _write_text(
         draw.text((x + 1, y + 1), label, border_color, font, anchor)
 
     draw.text(xy, text, font_color, font, anchor)
-    return draw
+    text_xyxy = draw.textbbox(xy, text, font, anchor)
+
+    return draw, text_xyxy
 
 
-def draw_box_label(
-    img,
-    xyxy,
-    label,
-    font_path,
+def draw_text_within_xyxy(
+    img: Image.Image,
+    xyxy: tuple,
+    label: str,
+    font_path: str,
     base_font_size=20,
     pad_percentage: float = 0.03,
     text_color=(255, 255, 255),
+    bordered: bool = False,
+    add_background: bool = True,
+    background_fill=(0, 0, 0),
+    background_opacity=0.15,
     location: Literal["bottom", "top"] = "bottom",
 ):
     box = Box(xyxy)
@@ -371,19 +341,42 @@ def draw_box_label(
     else:
         _box.adjust("y1", pad)
 
-    # draw.text(_box.bottom_center, label, text_color, font, anchor="ms")
     text_xyxy = _box.bottom_center if location == "bottom" else _box.top_center
     anchor = "ms" if location == "bottom" else "mt"
-    draw = _write_text(
+    draw, text_xyxy = _write_text(
         label,
         text_xyxy,
         draw,
         font,
-        bordered=True,
+        bordered=bordered,
         border_color="black",
         font_color=text_color,
         anchor=anchor,
     )
+
+    if add_background:
+        # print(f"Before: {text_xyxy}")
+        _xyxy = Box(text_xyxy)
+        pad_x = _xyxy.height * 0.025
+        pad_y = _xyxy.height * 0.03
+        print(pad)
+        _xyxy.adjust("y1", -pad_y)
+        _xyxy.adjust("x1", -pad_x)
+        _xyxy.adjust("x2", pad_x)
+        _x1, _y1, _x2, _y2 = _xyxy.xyxy
+
+        # fmt: off
+        # FIXME: yuck...
+        x1,y1,x2,y2 = xyxy
+        if _x1 < x1: _x1 = x1
+        if _x2 > x2: _x2 = x2
+        if _y2 > y2: _y2 = y2
+        # if _y1 < y1: _y1 = xyxy[1]
+        # fmt: on
+
+        img = draw_rectangle(
+            img, (_x1, _y1, _x2, _y2), background_fill, background_opacity
+        )
 
     return img
 
@@ -393,6 +386,12 @@ class Box:
         self._xyxy = xyxy
         self.x1, self.y1, self.x2, self.y2 = xyxy
         self.setup()
+
+    def pad(self, amt):
+        self.adjust("y1", -amt)
+        self.adjust("x1", -amt)
+        self.adjust("x2", amt)
+        self.adjust("y2", amt)
 
     def adjust(self, dim: str, amt):
         assert dim in ["x1", "x2", "y1", "y2"]

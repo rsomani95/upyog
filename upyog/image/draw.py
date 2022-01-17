@@ -2,7 +2,11 @@ from upyog.imports import *
 
 
 def draw_rectangle(
-    img: Image.Image, xyxy: tuple, fill: Optional[tuple] = (255, 255, 255), opacity=0.25
+    img: Image.Image,
+    xyxy: tuple,
+    fill: Optional[tuple] = (255, 255, 255),
+    opacity=0.25,
+    width=None,
 ):
     # NOTE: This draws a _filled_ rectangle
     new = Image.new("RGBA", img.size, (0, 0, 0, 0))
@@ -10,7 +14,7 @@ def draw_rectangle(
     if fill:
         opacity = int(opacity * 255)
         fill = fill + (opacity,)
-    draw.rectangle(xyxy, fill=fill, outline=fill, width=None if fill else 1)
+    draw.rectangle(xyxy, fill=fill, outline=fill, width=width)
 
     img = Image.alpha_composite(img.convert("RGBA"), new)
     img = img.convert("RGB")
@@ -29,14 +33,14 @@ def draw_rectangles(
 
 # TODO: Use ImageDraw.Draw
 def draw_rounded_rectangle(
-    img: Image.Image, xyxy: tuple, radius=10, color="white", opacity=1.0
+    img: Image.Image, xyxy: tuple, radius=10, color="white", opacity=1.0, width=3
 ):
     """Draw a rounded rectangle"""
     from aggdraw import Pen, Draw
 
     xl, yu, xr, yl = xyxy
     draw = Draw(img)
-    pen = Pen(color, opacity=int(opacity * 255), width=1)
+    pen = Pen(color, opacity=int(opacity * 255), width=width)
     r = radius
 
     # fmt: off

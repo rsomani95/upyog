@@ -24,22 +24,30 @@ class Visualiser:
         return self.img.size
 
     def draw_rectangle(
-        self, xyxy: tuple, fill: Optional[tuple] = (255, 255, 255), opacity=0.25
+        self,
+        xyxy: tuple,
+        fill: Optional[tuple] = (255, 255, 255),
+        opacity=0.25,
+        width=None,
     ):
-        self.img = draw_rectangle(self.img, xyxy, fill, opacity)
+        self.img = draw_rectangle(self.img, xyxy, fill, opacity, width)
         return self.img
 
     def draw_rectangles(
-        self, xyxys: List[tuple], fill: Optional[tuple] = (255, 255, 255), opacity=0.25
+        self,
+        xyxys: List[tuple],
+        fill: Optional[tuple] = (255, 255, 255),
+        opacity=0.25,
+        width=None,
     ):
         for xyxy in xyxys:
-            self.img = self.draw_rectangle(xyxy, fill, opacity)
+            self.img = self.draw_rectangle(xyxy, fill, opacity, width)
         return self.img
 
     def draw_rounded_rectangle(
-        self, xyxy: tuple, radius=10, color="white", opacity=1.0
+        self, xyxy: tuple, radius=10, color="white", opacity=1.0, width=3
     ):
-        self.img = draw_rounded_rectangle(self.img, xyxy, radius, color, opacity)
+        self.img = draw_rounded_rectangle(self.img, xyxy, radius, color, opacity, width)
         return self.img
 
     def draw_rounded_rectangles(
@@ -88,22 +96,30 @@ class Visualiser:
         font_background=True,
         font_background_opacity=0.15,
         font_pad=0.03,
-        opacity=1.0,
+        border_opacity=1.0,
+        border_width=3,
     ):
 
         if style == "sharp":
-            self.img = self.draw_rectangle(xyxy, box_fill, opacity)
+            self.img = self.draw_rectangle(xyxy, box_fill, border_opacity, border_width)
         elif style == "rounded":
             self.img = self.draw_rounded_rectangle(
-                xyxy, corner_radius, box_fill, opacity
+                xyxy, corner_radius, box_fill, border_opacity, border_width
             )
 
         label = label_transform(label)
         if confidence:
-            label = f"{label}: {confidence*100}%"
+            label = f"{label}: {round(confidence*100, 1)}%"
 
         self.img = self.draw_text_within_xyxy(
-            xyxy, label, font_pad, font_fill, label_location, font_bordered
+            xyxy,
+            label,
+            font_pad,
+            font_fill,
+            label_location,
+            font_bordered,
+            font_background,
+            font_background_opacity,
         )
 
         return self.img

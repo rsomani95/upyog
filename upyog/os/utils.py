@@ -7,6 +7,21 @@ def load_json(path: PathLike):
     return json.loads(Path(path).read_bytes())
 
 
+def check_pil_simd_usage():
+    pil_version = PIL.__version__
+
+    if not "post" in pil_version:
+        msg = f"Pillow-SIMD not installed. Using PIL {pil_version} instead"
+        warnings.warn(msg)
+
+    else:
+        if not PILFeatures.check_feature("libjpeg_turbo"):
+            warnings.warn(
+                f"Pillow-SIMD is installed, but Libjpeg Turbo is not being used. "
+                f"Unlikely to see any speedups"
+            )
+
+
 # fmt: off
 def sanitise_filename(
     f: str, lowercase=False, prefix=None, truncate: Optional[int] = 240

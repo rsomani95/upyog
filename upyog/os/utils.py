@@ -2,6 +2,9 @@ from upyog.imports import *
 from upyog.os.read_files import PathLike
 
 
+__all__ = ["load_json", "check_pil_simd_usage", "sanitise_filename"]
+
+
 def load_json(path: PathLike):
     "Load a JSON file"
     return json.loads(Path(path).read_bytes())

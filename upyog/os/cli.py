@@ -4,6 +4,9 @@ from upyog.utils import *
 from upyog.cli import Param as P, call_parse
 
 
+__all__ = ["move_files", "cleanup_duplicates"]
+
+
 @call_parse
 def move_files(
     i: P("Input folders to move the files from", str, nargs="+", metavar="INP") = None,

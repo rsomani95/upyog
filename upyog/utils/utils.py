@@ -1,6 +1,9 @@
 from upyog.imports import *
 
 
+__all__ = ["flatten", "uniqueify"]
+
+
 def flatten(x: Any) -> List[Any]:
     flattened_list = []
     for item in x:

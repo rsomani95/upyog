@@ -1,6 +1,9 @@
 from upyog.imports import *
 from upyog.image.io import *
 
+# We don't need to import anythin from this module because we're only patching stuff
+__all__ = []
+
 
 @fastcore.patch
 def __or__(self: Image.Image, other: Image.Image):

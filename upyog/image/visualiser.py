@@ -1,5 +1,7 @@
-from .draw import *
-from .composition import *
+from upyog.imports import *
+from upyog.image.draw import *
+from upyog.image.composition import *
+
 
 __all__ = ["Visualiser"]
 

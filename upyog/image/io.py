@@ -1,6 +1,6 @@
 from upyog.imports import *
 
-__all__ = ["load_image"]
+__all__ = ["load_image", "resize_with_padding"]
 
 
 def load_image(fn, mode="RGB") -> Image.Image:

@@ -1,4 +1,5 @@
 from upyog.imports import *
+from upyog.os.read_files import PathLike
 
 __all__ = [
     "draw_rectangle",
@@ -168,122 +169,18 @@ def draw_horizontal_bars(img, height_percentages, fill, thickness, opacity):
 color = lambda r, g, b: f"rgb({r},{g},{b})"
 
 
-# TODO: Rework
-@fastcore.patch
-def draw_text(
-    self: Image.Image,
-    text: Union[str, List[str]],
-    font_size: float = None,
-    font_color: Union[tuple, int] = (220, 220, 220),
-    font_path: Optional[str] = str(
-        Path(__file__).parent.parent.parent / "assets" / "EuroStyleNormal.ttf"
-    ),
-    location: Literal[
-        "bottom",
-        "bottom-right",
-        "bottom-left",
-        "top",
-        "top-right",
-        "top-left",
-    ] = "top",
-    font_background: bool = False,
-    font_border: bool = True,
-    font_size_div_factor: int = 30,
-    top_pad_factor: float = 0.001,
-):
-    """
-    Draw `text` on top of `img`. This is done _inplace_
-
-    * text: The text that will be "drawn" on the image. Can be a
-              list of strings as well
-    * font_size: Explicitly set font-size. Not recommended.
-                 See `font_size_div_factor` to scale font size proportionately
-    * font_color: An int or tuple of RGB color values
-    * font_path: Path to the font file (tested with `.ttf`)
-    * location: Where to draw the text? Any combination of
-                {bottom,top} + {right,left} where {bottom,top}
-                are mandatory
-    * font_background: Draw a black rectangle behind the text for clarity.
-                       WARNING: This modifies the image size
-    * font_size_div_factor: Set font size to img.width/font_size_div_factor
-                            Font size is smaller for larger values
-    * top_pad_factor: Adjustment for the padding of the text from top. This
-                      may need some fiddling depending on the font being used
-    """
-    img = self
-
-    assert location in [
-        "bottom",
-        "bottom-right",
-        "bottom-left",
-        "top",
-        "top-right",
-        "top-left",
-    ]
-
-    if font_size is None:
-        font_size = int(img.width / font_size_div_factor)
-
+def get_font(font_path=None, size=30) -> ImageFont.FreeTypeFont:
     if font_path:
-        # PIL gives an unintuitive OSError without much useful info
-        if not Path(font_path).exists:
-            raise FileNotFoundError(f"Couldn't find font file @ {font_path}")
-        font = ImageFont.truetype(font_path, size=font_size)
-
+        return ImageFont.truetype(font_path, size=size)
     else:
-        font = ImageFont.load_default()
-        warnings.warn(
-            "Loaded default PIL ImageFont. It's highly recommended you use a custom font as the default font's size cannot be tweaked"
-        )
+        return get_fallback_font()
 
-    fcolor = color(*font_color)
-    # Check for valid locations
 
-    # Convert text to drawable format
-    if isinstance(text, str):
-        text = [text]
-
-    if font_background:
-        if len(text) > 1:
-            warnings.warn(
-                f"Drawing a font background with multiple texts will likely result in a misaligned title. Split your code into multiple calls with a dedicated call for the title"
-            )
-        h = int(font_size * 1.7)
-        i = Image.new("RGB", (img.width, h + img.height))
-
-        paste_coords = (0, 0) if "bottom" in location else (0, h)
-        i.paste(img, paste_coords)
-        img = i
-
-    if "top" in location:
-        text = ["\n".join(text)]
-
-    draw = ImageDraw.Draw(img)
-
-    for i, label in enumerate(list(reversed(text))):
-        if "bottom" in location or "top" in location:
-            w, h = draw.textsize(label, font)
-
-        if "bottom" in location:
-            height = img.height - ((i + 1) * font_size * 1.3)
-
-        elif "top" in location:
-            height = img.height * font_size * top_pad_factor
-
-        if location == "bottom" or location == "top":
-            xy = ((img.width - w) / 2, height)
-        elif "-right" in location:
-            xy = (((img.width - (w + img.width * 0.01))), height)
-        elif "-left" in location:
-            xy = (img.width * 0.01, height)
-        else:
-            y = 1 if i == 0 else i * font_size * 1.5
-            xy = (10, y)
-
-        draw, _ = _write_text(
-            label, xy, draw, font, bordered=font_border, border_color="black"
-        )
-    return img
+def get_fallback_font() -> ImageFont.FreeTypeFont:
+    font_path = str(
+        Path(__file__).parent.parent.parent / "assets" / "EuroStyleNormal.ttf"
+    )
+    return get_font(font_path, size=30)
 
 
 def _write_text(
@@ -407,13 +304,208 @@ def draw_text_within_xyxy(
     return img
 
 
+# Source: https://www.haptik.ai/tech/putting-text-on-images-using-python-part2/
+def get_line_height(font: ImageFont.FreeTypeFont):
+    return font.getsize("hg")[1]
+
+
+# fmt: off
+TEXT_POSITIONS = Literal[
+    "top_left",       "top_center",        "top_right",
+    "center_left",      "center",       "center_right",
+    "bottom_left",   "bottom_center",   "bottom_right",
+]
+
+# https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+TEXT_ANCHORS = {
+    "top_left":    None,      "top_center": "mt",        "top_right": "rt",
+    "center_left": "lm",          "center": "mm",     "center_right": "rm",
+    "bottom_left": "lb",   "bottom_center": "mb",     "bottom_right": "rb",
+}
+# fmt: on
+
+
+def concat_multiline_text(text: Union[str, List[str]]):
+    if isinstance(text, str):
+        return text
+    else:
+        return "\n".join(text)
+
+
+def _get_constraned_xyxy(img, height_constraints, width_constraints):
+    return (
+        img.width * width_constraints[0],
+        img.height * height_constraints[0],
+        img.width * width_constraints[1],
+        img.height * height_constraints[1],
+    )
+
+
+def draw_text(
+    img: Image.Image,
+    text: Union[str, List[str]],
+    position: TEXT_POSITIONS,
+    font_path: Optional[PathLike] = None,
+    font_size: int = 30,
+    font_border=False,
+    font_color=(255, 255, 255),
+    font_border_color=(0, 0, 0),
+    padding: Union[int, float] = 0.03,
+    line_spacing: float = 1.3,  # Only used if text is List[str]
+    height_constraints: Tuple[int, int] = (0.0, 1.0),
+    width_constraints: Tuple[int, int] = (0.0, 1.0),
+):
+    assert position in TEXT_POSITIONS.__args__
+    font = get_font(font_path, font_size)
+    padding = int(img.height * padding) if isinstance(padding, float) else padding
+
+    if isinstance(text, str):
+        # Single-line text
+        # TODO: Move this to a dedicated function?
+        draw = ImageDraw.Draw(img)
+
+        xyxy = _get_constraned_xyxy(img, height_constraints, width_constraints)
+        img_box = Box(xyxy)
+        img_box.shrink(padding)
+
+        draw, _ = _write_text(
+            text=text,
+            xy=img_box[position],
+            draw=draw,
+            font=font,
+            bordered=font_border,
+            border_color=font_border_color,
+            font_color=font_color,
+            anchor=TEXT_ANCHORS[position],
+        )
+
+    else:
+        img = _draw_multiline_text(
+            img=img,
+            position=position,
+            lines=text,
+            font=font,
+            padding=padding,
+            bordered_font=font_border,
+            font_color=font_color,
+            font_border_color=font_border_color,
+            line_spacing=line_spacing,
+            height_constraints=height_constraints,
+            width_constraints=width_constraints,
+        )
+    return img
+
+
+# https://www.haptik.ai/tech/putting-text-on-images-using-python-part2/
+def text_wrap(text, font, max_width):
+    lines = []
+    # If the width of the text is smaller than image width
+    # we don't need to split it, just add it to the lines array
+    # and return
+    if font.getsize(text)[0] <= max_width:
+        lines.append(text)
+    else:
+        # split the line by spaces to get words
+        words = text.split(" ")
+        i = 0
+        # append every word to a line while its width is shorter than image width
+        while i < len(words):
+            line = ""
+            while i < len(words) and font.getsize(line + words[i])[0] <= max_width:
+                line = line + words[i] + " "
+                i += 1
+            if not line:
+                line = words[i]
+                i += 1
+            # when the line gets longer than the max width do not append the word,
+            # add the line to the lines array
+            lines.append(line)
+    return lines
+
+
+def _draw_multiline_text(
+    img: Image.Image,
+    # xy: Tuple[int, int],  # Starting point
+    position: TEXT_POSITIONS,
+    lines: List[str],
+    font: ImageFont.FreeTypeFont,
+    padding: int,
+    bordered_font=False,
+    font_color="white",
+    font_border_color="black",
+    line_spacing=1.0,
+    height_constraints: Tuple[int, int] = (0.0, 1.0),
+    width_constraints: Tuple[int, int] = (0.0, 1.0),
+):
+    assert position in TEXT_POSITIONS.__args__
+    line_height = get_line_height(font)
+    total_line_height = get_total_line_height(lines, font, line_spacing)
+    draw = ImageDraw.Draw(img)
+
+    # total_line_height = line_height * len(lines) * line_spacing
+
+    xyxy = _get_constraned_xyxy(img, height_constraints, width_constraints)
+    img_box = Box(xyxy)
+    img_box.shrink(10)
+
+    # fmt: off
+    x, y = img_box[position]
+    anchor = TEXT_ANCHORS[position]
+    anchor = f"{anchor[0]}t"
+
+    if "center" in position: y -= total_line_height / 2
+    if "bottom" in position: y -= total_line_height
+    # fmt: on
+
+    lines_final = []
+    for line in lines:
+        lines_final += text_wrap(line, font, img_box.width)
+
+    for line in lines_final:
+        xy = (x, y)
+        draw, _ = _write_text(
+            line, xy, draw, font, bordered_font, font_border_color, font_color, anchor
+        )
+        y += line_height * line_spacing
+
+    return img
+
+
+def get_total_line_height(lines, font, line_spacing):
+    line_height = get_line_height(font)
+    num_lines = len(lines)
+
+    height = line_height * (num_lines - 1) * line_spacing
+    height += line_height
+
+    return height
+
+
 class Box:
     def __init__(self, xyxy):
         self._xyxy = xyxy
         self.x1, self.y1, self.x2, self.y2 = xyxy
         self.setup()
 
-    def pad(self, amt):
+    def __getitem__(self, position: str):
+        return getattr(self, position)
+
+    # fmt: off
+    def shrink_left  (self, amt: int): self.adjust("x1",  amt)
+    def shrink_top   (self, amt: int): self.adjust("y1",  amt)
+    def shrink_right (self, amt: int): self.adjust("x2", -amt)
+    def shrink_bottom(self, amt: int): self.adjust("y2", -amt)
+    # fmt: on
+
+    def shrink(self, amt: int):
+        "Decrease box dimensions by `amt` on all sides"
+        self.shrink_left(amt)
+        self.shrink_top(amt)
+        self.shrink_right(amt)
+        self.shrink_bottom(amt)
+
+    def expand(self, amt: int):
+        "Increase box dimensions by `amt` on all sides"
         self.adjust("y1", -amt)
         self.adjust("x1", -amt)
         self.adjust("x2", amt)
@@ -444,13 +536,13 @@ class Box:
         self.top_left = (self.x1, self.y1)
         self.bottom_right = (self.x2, self.y2)
         self.top_right = (self.x2, self.y1)
-        self.bottom_left = (self.x1, self.y1)
+        self.bottom_left = (self.x1, self.y2)
 
     def _points(self):
         self.top_center = (self.center_horz, self.y1)
         self.bottom_center = (self.center_horz, self.y2)
-        self.right_center = (self.x2, self.center_vert)
-        self.left_center = (self.x1, self.center_vert)
+        self.center_right = (self.x2, self.center_vert)
+        self.center_left = (self.x1, self.center_vert)
 
     @property
     def cxcywh(self):

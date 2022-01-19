@@ -1,6 +1,8 @@
+from turtle import pos
 from upyog.imports import *
 from upyog.image.draw import *
 from upyog.image.composition import *
+from upyog.image.draw import TEXT_POSITIONS
 
 
 __all__ = ["Visualiser"]
@@ -173,6 +175,35 @@ class Visualiser:
             background_opacity=font_bg_opacity,
         )
         return self.img
+
+    def draw_text(
+        self,
+        text: Union[str, List[str]],
+        position: TEXT_POSITIONS,
+        # font_path: Optional[PathLike] = None,
+        # font_size: int = 30,
+        font_border=False,
+        font_color=(255, 255, 255),
+        font_border_color=(0, 0, 0),
+        padding: Union[int, float] = 0.03,
+        line_spacing: float = 1.3,  # Only used if text is List[str]
+        height_constraints: Tuple[int, int] = (0.0, 1.0),
+        width_constraints: Tuple[int, int] = (0.0, 1.0),
+    ):
+        return draw_text(
+            img=self.img,
+            text=text,
+            position=position,
+            font_path=self.font_path,
+            font_size=self.base_font_size,
+            font_border=font_border,
+            font_color=font_color,
+            font_border_color=font_border_color,
+            padding=padding,
+            line_spacing=line_spacing,
+            height_constraints=height_constraints,
+            width_constraints=width_constraints,
+        )
 
     def caption(self, text: str, color=(255, 255, 255)):
         xyxy = (0, 0, self.img.width, self.img.height)

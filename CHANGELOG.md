@@ -1,5 +1,8 @@
 
 ## Unreleased
+
+## 0.3.0 -- 19th Jan 2022
+
 * Bugfixes:
   - `Box.center_left` xy coords
 * Added:
@@ -15,7 +18,9 @@
     - height and width constraints options
     - padding option
 
+
 ## 0.2.0 -- 18th Jan 2022
+
 * Image: Added functions to draw keypoints, circles and ellipses
 * Image: Some error handling when we fail to resize font size successfully
 * Added new CLI program:

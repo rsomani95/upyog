@@ -1,7 +1,5 @@
 from upyog.imports import *
 
-PathLike = Union[str, Path]
-
 
 """
 Taken from fastaiv1: https://github.com/fastai/fastai1/blob/a8327427ad5137c4899a1b4f74745193c9ea5be3/fastai/data_block.py#L22-L47

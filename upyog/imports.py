@@ -42,3 +42,5 @@ from rich.progress import track
 from rich.traceback import install
 from tqdm.auto import tqdm
 from typing_extensions import Literal
+
+PathLike = Union[str, Path]

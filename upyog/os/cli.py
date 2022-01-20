@@ -31,7 +31,7 @@ def move_files(
     mover = shutil.move if move else shutil.copy
 
     for file in track(files, "Moving Files..."):
-        mover(file, out_dir)
+        mover(str(file), str(out_dir))
 
 
 @call_parse

@@ -1,6 +1,12 @@
 
 ## Unreleased
 
+## 0.3.2 -- 19th Jan 2022
+
+- Bugfixes:
+  - `move-files`
+  - `generate-image-grid`
+
 ## 0.3.0 -- 19th Jan 2022
 
 * Bugfixes:

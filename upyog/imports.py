@@ -44,3 +44,5 @@ from tqdm.auto import tqdm
 from typing_extensions import Literal
 
 PathLike = Union[str, Path]
+
+logger = logger.opt(colors=True)

@@ -278,7 +278,7 @@ def draw_text_within_xyxy(
             _xyxy = Box(text_xyxy)
             pad_x = _xyxy.height * 0.025
             pad_y = _xyxy.height * 0.03
-            print(pad)
+
             _xyxy.adjust("y1", -pad_y)
             _xyxy.adjust("x1", -pad_x)
             _xyxy.adjust("x2", pad_x)

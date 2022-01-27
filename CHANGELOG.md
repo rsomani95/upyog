@@ -1,6 +1,8 @@
 
 ## Unreleased
 
+## 0.4.1 -- 27 Jan 2022
+- Adjust font path, export font with package
 
 ## 0.4 -- 27 Jan 2022
 

@@ -2,7 +2,7 @@ from turtle import pos
 from upyog.imports import *
 from upyog.image.draw import *
 from upyog.image.composition import *
-from upyog.image.draw import TEXT_POSITIONS
+from upyog.image.draw import TEXT_POSITIONS, DEFAULT_FONT_PATH
 
 
 __all__ = ["Visualiser"]
@@ -13,12 +13,7 @@ class Visualiser:
         copy = True
         self.img = deepcopy(img) if copy else img
         self.base_font_size = font_size
-
-        self.font_path = font_path
-        if not font_path:
-            self.font_path = str(
-                Path(__file__).parent.parent.parent / "assets" / "EuroStyleNormal.ttf"
-            )
+        self.font_path = font_path or DEFAULT_FONT_PATH
 
     def _repr_png_(self):
         return self.img._repr_png_()

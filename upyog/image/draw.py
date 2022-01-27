@@ -176,11 +176,13 @@ def get_font(font_path=None, size=30) -> ImageFont.FreeTypeFont:
         return get_fallback_font()
 
 
+DEFAULT_FONT_PATH = str(
+    Path(__file__).parent.parent.parent / "assets" / "fonts" / "EuroStyleNormal.ttf"
+)
+
+
 def get_fallback_font() -> ImageFont.FreeTypeFont:
-    font_path = str(
-        Path(__file__).parent.parent.parent / "assets" / "EuroStyleNormal.ttf"
-    )
-    return get_font(font_path, size=30)
+    return get_font(DEFAULT_FONT_PATH, size=30)
 
 
 def _write_text(

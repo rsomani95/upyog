@@ -1,8 +1,16 @@
 
 ## Unreleased
+
+
+## 0.4 -- 27 Jan 2022
+
+### New Features
 Add `upyog.ann` - a subpackage that has interfaces to artificial
 nearest neighbor libraries.
   - Added `AnnoyIndexer` and `AnnoyDataFrameIndexer`
+
+### Enhancements
+- Improve `upyog.utils.utils.flatten` to work with any iterable
 
 ## 0.3.2 -- 19th Jan 2022
 

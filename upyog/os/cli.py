@@ -35,7 +35,7 @@ def move_files(
 
 
 @call_parse
-def cleanup_duplicates(
+def remove_duplicates_from_folder(
     i: P("Single input folder that is to be cleaned up", str) = None,
     t: P(
         "An arbitrary number of target folders that contain duplicate files that are to be removed from the input folder `--i`",

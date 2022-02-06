@@ -208,4 +208,6 @@ class Visualiser:
         return self.img
 
     def draw_rule_of_thirds(self, thickness=5, opacity=0.4):
-        return draw_rule_of_thirds(self.img, thickness, opacity)
+        self.draw_vertical_bars([1 / 3, 2 / 3], thickness=thickness, opacity=opacity)
+        self.draw_horizontal_bars([1 / 3, 2 / 3], thickness=thickness, opacity=opacity)
+        return self

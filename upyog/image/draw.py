@@ -17,6 +17,19 @@ __all__ = [
 ]
 
 
+RGBTuple = Tuple[int, int, int]
+
+
+def _check_xy_len(xy):
+    if not len(xy) == 2:
+        raise ValueError(f"Expected `xy` to be 2 elements, got {len(xy)} instead")
+
+
+def _check_xyxy_len(xy):
+    if not len(xy) == 4:
+        raise ValueError(f"Expected `xyxy` to be 4 elements, got {len(xy)} instead")
+
+
 def get_fill(fill: Tuple[int, int, int], opacity: float):
     if fill:
         opacity = int(opacity * 255)
@@ -31,6 +44,7 @@ def draw_rectangle(
     width=None,
 ):
     # NOTE: This draws a _filled_ rectangle
+    _check_xyxy_len(xyxy)
     new = Image.new("RGBA", img.size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(new)
     fill = get_fill(fill, opacity)
@@ -58,6 +72,8 @@ def draw_rounded_rectangle(
     """Draw a rounded rectangle"""
     from aggdraw import Pen, Draw
 
+    _check_xyxy_len(xyxy)
+
     xl, yu, xr, yl = xyxy
     draw = Draw(img)
     pen = Pen(color, opacity=int(opacity * 255), width=width)
@@ -81,6 +97,7 @@ def draw_rounded_rectangle(
 
 
 def draw_ellipse(img, xyxy, fill=(255, 255, 255), opacity=0.8):
+    _check_xyxy_len(xyxy)
     new = Image.new("RGBA", img.size)
     draw = ImageDraw.Draw(new)
     fill = get_fill(fill, opacity)
@@ -93,6 +110,7 @@ def draw_ellipse(img, xyxy, fill=(255, 255, 255), opacity=0.8):
 
 
 def draw_circle(img, xy, radius, fill=(255, 255, 255), opacity=0.8):
+    _check_xy_len(xy)
     x, y, r = *xy, radius
     xyxy = x - r, y - r, x + r, y + r
     return draw_ellipse(img, xyxy, fill, opacity)
@@ -106,7 +124,12 @@ def draw_keypoint(
 
 
 def draw_keypoints(
-    img, xys, fill=(255, 255, 255), opacity=0.8, radius=None, dynamic_radius=True
+    img,
+    xys,
+    fill: Union[RGBTuple, List[RGBTuple]] = (255, 255, 255),
+    opacity=0.8,
+    radius=None,
+    dynamic_radius=True,
 ):
     fills = None
     if fill:
@@ -485,6 +508,7 @@ def get_total_line_height(lines, font, line_spacing):
 
 class Box:
     def __init__(self, xyxy):
+        _check_xyxy_len(xyxy)
         self._xyxy = xyxy
         self.x1, self.y1, self.x2, self.y2 = xyxy
         self.setup()

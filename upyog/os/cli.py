@@ -77,10 +77,10 @@ def remove_duplicates_from_folder(
     cleanup_path = Path(i)
     target_paths = [Path(p) for p in t]
 
-    target_fnames = flatten([get_image_files(path) for path in target_paths])
+    target_fnames = flatten([get_files(path, recurse=True) for path in target_paths])
     target_fnames = [f.stem for f in target_fnames]
 
-    cleanup_files = get_image_files(cleanup_path)
+    cleanup_files = get_files(cleanup_path, recurse=True)
     cleanup_fnames = [f.stem for f in cleanup_files]
 
     fnames_to_delete = set.intersection(set(cleanup_fnames), set(target_fnames))
@@ -93,3 +93,17 @@ def remove_duplicates_from_folder(
             f.unlink()
 
     print(f"Deleted {counter} files")
+
+
+@call_parse
+def add_parent_folder_name(
+    # i: P("Input folder(s) and files", str, nargs="+"),
+    i: P("Input folder", str),
+    sep: P("Separator", str) = "_",
+):
+    files = get_files(i, recurse=True)
+    for file in tqdm(files):
+        if file.is_file():
+            new_name = file.with_name(f"{file.parent.name}{sep}{file.name}")
+            print(f"Renamed: {file.name} => {new_name}")
+            file.rename(new_name)

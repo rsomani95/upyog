@@ -24,7 +24,7 @@ from enum import Enum
 from functools import partial, reduce
 from pathlib import Path
 from pprint import pprint
-from types import SimpleNamespace
+from types import SimpleNamespace, MethodType
 from typing import *
 
 import fastcore.all as fastcore

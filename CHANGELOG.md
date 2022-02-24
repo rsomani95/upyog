@@ -1,5 +1,7 @@
 
 ## Unreleased
+- `Visualiser` classmethods to init from RGB/BGR `np.ndarray`
+- Allow `Visualiser.draw_bbox` without a `label`
 
 ## 0.4.1 -- 27 Jan 2022
 - Adjust font path, export font with package

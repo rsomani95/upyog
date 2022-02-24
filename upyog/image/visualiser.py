@@ -15,6 +15,24 @@ class Visualiser:
         self.base_font_size = font_size
         self.font_path = font_path or DEFAULT_FONT_PATH
 
+    @staticmethod
+    def _as_int_array(img_array: np.ndarray):
+        assert img_array.ndim == 3
+        return np.ascontiguousarray(img_array, np.uint8)
+
+    @classmethod
+    def fromarray_RGB(
+        cls, img_array: np.ndarray, font_path: Optional[str] = None, font_size=30
+    ):
+        img_array = cls._as_int_array(img_array)
+        return cls(Image.fromarray(img_array), font_path, font_size)
+
+    @classmethod
+    def fromarray_BGR(
+        cls, img_array: np.ndarray, font_path: Optional[str] = None, font_size=30
+    ):
+        return cls.fromarray_RGB(img_array[:, :, ::-1], font_path, font_size)
+
     def _repr_png_(self):
         return self.img._repr_png_()
 
@@ -105,8 +123,8 @@ class Visualiser:
     def draw_bbox(
         self,
         xyxy,
-        label: str,
-        label_transform: Callable = str.upper,
+        label: Optional[str] = None,
+        label_transform: Callable = str.title,
         label_location: Literal["top", "bottom"] = "bottom",
         confidence: Optional[float] = None,
         style: Literal["rounded", "sharp"] = "rounded",
@@ -128,9 +146,14 @@ class Visualiser:
                 xyxy, corner_radius, box_fill, border_opacity, border_width
             )
 
-        label = label_transform(label)
-        if confidence:
-            label = f"{label}: {round(confidence*100, 1)}%"
+        # fmt: off
+        if label:      label = label_transform(label)
+        if confidence: confidence = round(confidence * 100, 1)
+
+        if   label and confidence:     label = f"{label}: {confidence}%"
+        elif label and not confidence: label = label
+        elif confidence and not label: label = f"{confidence} %"
+        # fmt: on
 
         self.img = self.draw_text_within_xyxy(
             xyxy,

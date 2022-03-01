@@ -1,5 +1,5 @@
 
-## Unreleased
+## 0.4.2 -- 2 Mar 2022
 - `Visualiser` classmethods to init from RGB/BGR `np.ndarray`
 - Allow `Visualiser.draw_bbox` without a `label`
 - Improve error handling for all methods that accept `xy` or `xyxy` to ensure we have correct `len(xy|xyxy)`

@@ -217,20 +217,22 @@ def _write_text(
     border_color="black",
     font_color="white",
     anchor=None,
+    border_width: float = 1.0,
 ):
     label = text
     x, y = xy
     if bordered:
-        draw.text((x - 1, y), label, border_color, font, anchor)
-        draw.text((x + 1, y), label, border_color, font, anchor)
-        draw.text((x, y - 1), label, border_color, font, anchor)
-        draw.text((x, y + 1), label, border_color, font, anchor)
+        b = border_width
+        draw.text((x - b, y), label, border_color, font, anchor)
+        draw.text((x + b, y), label, border_color, font, anchor)
+        draw.text((x, y - b), label, border_color, font, anchor)
+        draw.text((x, y + b), label, border_color, font, anchor)
 
         # thicker border
-        draw.text((x - 1, y - 1), label, border_color, font, anchor)
-        draw.text((x + 1, y - 1), label, border_color, font, anchor)
-        draw.text((x - 1, y + 1), label, border_color, font, anchor)
-        draw.text((x + 1, y + 1), label, border_color, font, anchor)
+        draw.text((x - b, y - b), label, border_color, font, anchor)
+        draw.text((x + b, y - b), label, border_color, font, anchor)
+        draw.text((x - b, y + b), label, border_color, font, anchor)
+        draw.text((x + b, y + b), label, border_color, font, anchor)
 
     try:
         draw.text(xy, text, font_color, font, anchor)

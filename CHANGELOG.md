@@ -1,3 +1,6 @@
+## Unreleased
+
+* Added `border_width` param (unexposed) to `opyog.image.draw._write_text`
 
 ## 0.4.2 -- 2 Mar 2022
 - `Visualiser` classmethods to init from RGB/BGR `np.ndarray`

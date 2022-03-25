@@ -1,6 +1,7 @@
-## Unreleased
+## 0.4.3 -- 25 March 2022
 
 * Added `border_width` param (unexposed) to `opyog.image.draw._write_text`
+* Added `find-common-files-between-folders` program
 
 ## 0.4.2 -- 2 Mar 2022
 - `Visualiser` classmethods to init from RGB/BGR `np.ndarray`

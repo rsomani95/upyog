@@ -32,6 +32,7 @@ def resize_with_padding(
     target_WH,
     pad_fill=0,
     pad_location: Literal["center", "top"] = "center",
+    mode: str = "RGB",
 ):
     to_W, to_H = target_WH
     W, H = img.size
@@ -45,7 +46,8 @@ def resize_with_padding(
         box = ((to_W - W) // 2, (to_H - H) // 2)
 
     # Create a new image and paste the resized on it
-    padded_img = Image.new("RGB", (to_W, to_H), color=(pad_fill, pad_fill, pad_fill))
+    color = (pad_fill, pad_fill, pad_fill) if pad_fill else None
+    padded_img = Image.new(mode, (to_W, to_H), color=color)
     padded_img.paste(img.resize((W, H), Image.ANTIALIAS), box)
 
     return padded_img

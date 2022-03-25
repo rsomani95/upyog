@@ -107,3 +107,76 @@ def add_parent_folder_name(
             new_name = file.with_name(f"{file.parent.name}{sep}{file.name}")
             print(f"Renamed: {file.name} => {new_name}")
             file.rename(new_name)
+
+
+@call_parse
+def find_common_files_between_folders(
+    i: P("Input folders", str, nargs="+"),
+    include_parent: P("Include name of parent folder?", bool) = False,
+):
+    """
+            --------- COMMON FILES DETECTOR ---------
+
+    This program scans an arbitray number of input folders and prints the
+    number of common elements between these folders.
+
+    Say we have the following input folders:
+    ├── input-folder-1
+    │   ├── file1.jpg
+    │   ├── file2.jpg
+    │   └── file3.jpg
+    ├
+    ├── input-folder-2
+    │   ├── file3.jpg
+    │   ├── file4.jpg
+
+    Where there's one common file between input-folder-1 and 2, the result
+    is as follows:
+
+        {
+            "input-folder-1 (3)": {
+                "input-folder-2 (2)": 1
+            },
+            "input-folder-2 (2)": {
+                "input-folder-1 (3)": 1
+            }
+        }
+
+    Note that the number of files in each folder is added in brackets.
+
+    Usage:
+    ------
+
+    find-common-files-between-folders  input-folder-1 input-folder-2
+
+    """
+    assert i
+    input_folders = i
+
+    def folder_with_parent(f, files=None):
+        f = Path(f)
+        result = f"{f.parent.name} / {f.name}" if include_parent else f.name
+        return f"{result} ({len(files)})" if files is not None else result
+
+    folder2files = {folder: get_image_files(folder) for folder in input_folders}
+    folder2files = {
+        folder: [f.name for f in files] for folder, files in folder2files.items()
+    }
+    folder2files = {folder_with_parent(k, v): v for k, v in folder2files.items()}
+
+    # folder_names = [folder_with_parent(f) for f in folder2files.keys()]
+    # results = dict.fromkeys(folder_names)
+    results = dict.fromkeys(folder2files)
+    for f1 in folder2files.keys():
+        f1_common = {}
+        for f2, files in folder2files.items():
+            if f2 == f1:
+                continue
+
+            common = set(folder2files[f1]).intersection(files)
+            f1_common[f2] = len(common)
+
+        results[f1] = f1_common
+
+    rich.print_json(data=results)
+    return results

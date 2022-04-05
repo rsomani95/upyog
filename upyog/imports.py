@@ -43,6 +43,7 @@ from rich.traceback import install
 from tqdm.auto import tqdm
 from typing_extensions import Literal
 
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 PathLike = Union[str, Path]
 
 logger = logger.opt(colors=True)

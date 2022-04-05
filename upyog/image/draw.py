@@ -45,13 +45,15 @@ def draw_rectangle(
 ):
     # NOTE: This draws a _filled_ rectangle
     _check_xyxy_len(xyxy)
+    orig_mode = img.mode
+
     new = Image.new("RGBA", img.size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(new)
     fill = get_fill(fill, opacity)
     draw.rectangle(xyxy, fill=fill, outline=fill, width=width)
 
     img = Image.alpha_composite(img.convert("RGBA"), new)
-    img = img.convert("RGB")
+    img = img.convert(orig_mode)
 
     return img
 
@@ -98,13 +100,15 @@ def draw_rounded_rectangle(
 
 def draw_ellipse(img, xyxy, fill=(255, 255, 255), opacity=0.8):
     _check_xyxy_len(xyxy)
+    orig_mode = img.mode
+
     new = Image.new("RGBA", img.size)
     draw = ImageDraw.Draw(new)
     fill = get_fill(fill, opacity)
 
     draw.ellipse(xyxy, fill=fill, width=0, outline=None)
     img = Image.alpha_composite(img.convert("RGBA"), new)
-    img = img.convert("RGB")
+    img = img.convert(orig_mode)
 
     return img
 

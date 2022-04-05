@@ -3,7 +3,7 @@ from upyog.imports import *
 __all__ = ["load_image", "resize_with_padding"]
 
 
-def load_image(fn, mode="RGB") -> Image.Image:
+def load_image(fn, mode: Optional[str] = "RGB") -> Image.Image:
     img = Image.open(fn)
     img.load()
     img = img._new(img.im)
@@ -32,10 +32,11 @@ def resize_with_padding(
     target_WH,
     pad_fill=0,
     pad_location: Literal["center", "top"] = "center",
-    mode: str = "RGB",
+    # mode: str = "RGB",
 ):
     to_W, to_H = target_WH
     W, H = img.size
+    orig_mode = img.mode
 
     ratio = get_ratio(img.size, target_WH)
     W, H = int(ratio * W), int(ratio * H)
@@ -47,7 +48,7 @@ def resize_with_padding(
 
     # Create a new image and paste the resized on it
     color = (pad_fill, pad_fill, pad_fill) if pad_fill else None
-    padded_img = Image.new(mode, (to_W, to_H), color=color)
+    padded_img = Image.new(orig_mode, (to_W, to_H), color=color)
     padded_img.paste(img.resize((W, H), Image.ANTIALIAS), box)
 
     return padded_img

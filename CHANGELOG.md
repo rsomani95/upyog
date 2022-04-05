@@ -1,3 +1,8 @@
+## Unreleased
+
+* Respect `PIL.Image.mode` after doing operations (not thoroughly tested). Previously we converted everything to RGB mode
+* 
+
 ## 0.4.3 -- 25 March 2022
 
 * Added `border_width` param (unexposed) to `opyog.image.draw._write_text`

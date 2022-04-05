@@ -1,7 +1,7 @@
 from upyog.imports import *
 
 
-__all__ = ["flatten", "uniqueify"]
+__all__ = ["flatten", "uniqueify", "get_YYYY_MM_DD"]
 
 
 def flatten(x: Any) -> List[Any]:
@@ -16,3 +16,7 @@ def flatten(x: Any) -> List[Any]:
 
 def uniqueify(x: Collection) -> Collection:
     return sorted(list(set(x)))
+
+
+def get_YYYY_MM_DD(sep="_") -> str:
+    return datetime.now().strftime(f"%Y{sep}%m{sep}%d")

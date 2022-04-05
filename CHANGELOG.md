@@ -3,6 +3,7 @@
 * Respect `PIL.Image.mode` after doing operations (not thoroughly tested). Previously we converted everything to RGB mode
 * Load truncated images by default
 * Added simple bbox utils for xyxy <-> xywh conversions
+* Add `get_YYYY_MM_DD` convenience function
 
 ## 0.4.3 -- 25 March 2022
 

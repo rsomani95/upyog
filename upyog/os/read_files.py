@@ -1,4 +1,5 @@
 from upyog.imports import *
+from upyog.utils.utils import flatten
 
 
 """
@@ -71,18 +72,28 @@ video_extensions = set(
 
 
 def get_image_files(
-    path: PathLike,
+    path: Union[PathLike, List[PathLike]],
     include: Optional[List[str]] = None,
     exclude: Optional[List[str]] = None,
     recurse: bool = True,
 ) -> List[Path]:
-    return get_files(
-        path=path,
-        include=include,
-        exclude=exclude,
-        recurse=recurse,
-        extensions=image_extensions,
-    )
+
+    if not isinstance(path, list):
+        path = [path]
+
+    paths = path  # For backward compatibility
+    all_files = []
+    for path in paths:
+        files = get_files(
+            path=path,
+            include=include,
+            exclude=exclude,
+            recurse=recurse,
+            extensions=image_extensions,
+        )
+        all_files += files
+
+    return flatten(files)
 
 
 def get_video_files(

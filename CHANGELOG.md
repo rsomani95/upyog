@@ -1,5 +1,6 @@
 ## Unreleased
 
+* Added `nb2script` command line tool (copied over from the earliest nbdev mockup that worked on individual notebooks)
 * Respect `PIL.Image.mode` after doing operations (not thoroughly tested). Previously we converted everything to RGB mode
 * Load truncated images by default
 * Added simple bbox utils for xyxy <-> xywh conversions

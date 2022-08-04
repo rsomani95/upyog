@@ -2,9 +2,14 @@
 
 * Added `nb2script` command line tool (copied over from the earliest nbdev mockup that worked on individual notebooks)
 * Respect `PIL.Image.mode` after doing operations (not thoroughly tested). Previously we converted everything to RGB mode
+* Classmethod for instantiating a `Visualiser`
 * Load truncated images by default
 * Added simple bbox utils for xyxy <-> xywh conversions
 * Add `get_YYYY_MM_DD` convenience function
+* Add `get_file_size` util
+* Add patched methods to `pathlib.Path`:
+  * `list_files()`
+  * `ls()`
 
 ## 0.4.3 -- 25 March 2022
 

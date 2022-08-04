@@ -10,6 +10,7 @@
 * Add patched methods to `pathlib.Path`:
   * `list_files()`
   * `ls()`
+* Downloading utils copied over from `torchvision`
 
 ## 0.4.3 -- 25 March 2022
 

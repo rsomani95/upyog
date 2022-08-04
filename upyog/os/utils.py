@@ -1,8 +1,7 @@
 from upyog.imports import *
-from upyog.os.read_files import PathLike
+from upyog.os.read_files import PathLike, get_files
 
-
-__all__ = ["load_json", "check_pil_simd_usage", "sanitise_filename"]
+__all__ = ["load_json", "check_pil_simd_usage", "sanitise_filename", "get_file_size"]
 
 
 def load_json(path: PathLike):
@@ -45,4 +44,18 @@ def sanitise_filename(
     if lowercase: fn = fn.lower()
 
     return fn
+
+
+def get_file_size(path: PathLike, units: Literal["B", "KB", "MB", "GB"] = "MB"):
+    path = Path(path)
+    if path.is_dir():
+        B = sum(os.path.getsize(f) for f in get_files(path, recurse=True))
+    else:
+        B = os.path.getsize(path)
+
+    if   units == "B":  return B
+    elif units == "KB": return B/1024
+    elif units == "MB": return B/1024**2
+    elif units == "GB": return B/1024**3
+
 # fmt: on

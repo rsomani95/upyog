@@ -12,7 +12,7 @@ class Visualiser:
     def __init__(self, img: Image.Image, font_path: Optional[str] = None, font_size=30):
         copy = True
         self.img = deepcopy(img) if copy else img
-        self.base_font_size = font_size
+        self.font_size = font_size
         self.font_path = font_path or DEFAULT_FONT_PATH
 
     @staticmethod
@@ -32,6 +32,12 @@ class Visualiser:
         cls, img_array: np.ndarray, font_path: Optional[str] = None, font_size=30
     ):
         return cls.fromarray_RGB(img_array[:, :, ::-1], font_path, font_size)
+
+    @classmethod
+    def from_file(
+        cls, filepath: PathLike, font_path: Optional[str] = None, font_size=30
+    ):
+        return cls(Image.open(filepath).convert("RGB"), font_path, font_size)
 
     def _repr_png_(self):
         return self.img._repr_png_()
@@ -184,7 +190,7 @@ class Visualiser:
             xyxy=xyxy,
             label=label,
             font_path=self.font_path,
-            base_font_size=self.base_font_size,
+            base_font_size=self.font_size,
             pad_percentage=font_pad,
             text_color=font_fill,
             location=label_location,
@@ -198,8 +204,6 @@ class Visualiser:
         self,
         text: Union[str, List[str]],
         position: TEXT_POSITIONS,
-        # font_path: Optional[PathLike] = None,
-        # font_size: int = 30,
         font_border=False,
         font_color=(255, 255, 255),
         font_border_color=(0, 0, 0),
@@ -213,7 +217,7 @@ class Visualiser:
             text=text,
             position=position,
             font_path=self.font_path,
-            font_size=self.base_font_size,
+            font_size=self.font_size,
             font_border=font_border,
             font_color=font_color,
             font_border_color=font_border_color,

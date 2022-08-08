@@ -1,4 +1,4 @@
-## Unreleased
+## 0.5.1 -- 8 August 2022
 
 * Added `nb2script` command line tool (copied over from the earliest nbdev mockup that worked on individual notebooks)
 * Respect `PIL.Image.mode` after doing operations (not thoroughly tested). Previously we converted everything to RGB mode

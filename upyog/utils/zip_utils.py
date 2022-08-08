@@ -17,7 +17,7 @@ def compose_files_into_zip_archive(
     zip_name = zip_name + ".zip"
 
     for file in files:
-        shutil.copy(file, str(out_dir / file.name))
+        shutil.copy(file, str(out_dir / zip_name))
 
     zipfile = zip_folder(out_dir)
     shutil.rmtree(out_dir)

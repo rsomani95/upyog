@@ -1,3 +1,6 @@
+## 0.5.2 -- 8 August 2022
+* Add `upyog.utils.zip` -- utilities to easily zip files / folders in Python
+
 ## 0.5.1 -- 8 August 2022
 
 * Added `nb2script` command line tool (copied over from the earliest nbdev mockup that worked on individual notebooks)

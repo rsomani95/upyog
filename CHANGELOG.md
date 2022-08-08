@@ -1,4 +1,4 @@
-## 0.5.2 -- 8 August 2022
+## 0.5.3 -- 8 August 2022
 * Add `upyog.utils.zip` -- utilities to easily zip files / folders in Python
 
 ## 0.5.1 -- 8 August 2022

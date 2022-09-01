@@ -1,4 +1,4 @@
-## Unreleased
+## 0.5.5 -- 1 September 2022
 * Add a bunch of utilities related to iterating in `utils.utils`
 * `make_img_grid` in non-verbose mode... finally
 

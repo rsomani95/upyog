@@ -29,7 +29,11 @@ def img_join_vertical(imgs: ImageCollection) -> Image.Image:
 
 
 def make_img_grid(
-    imgs: ImageCollection, ncol=3, size_WH: Optional[tuple] = (640, 384), pad=True
+    imgs: ImageCollection,
+    ncol=3,
+    size_WH: Optional[tuple] = (640, 384),
+    pad=True,
+    verbose=False,
 ):
     # fmt: off
     if size_WH:
@@ -42,10 +46,34 @@ def make_img_grid(
     if ncol == 1:
         return img_join_vertical(imgs)
 
-    from rich.progress import Progress
+    if verbose:
+        from rich.progress import Progress
 
-    with Progress() as prog:
-        # Create rows with individual images
+        with Progress() as prog:
+            # Create rows with individual images
+            rows, row = [], []
+            for i, img in enumerate(imgs, start=1):
+                row += [img]
+                if i % ncol == 0:
+                    rows += [row]
+                    row = []
+            if not row == []:
+                rows += [row]
+
+            n_tasks = len(rows) + 1
+            task_concat = prog.add_task("Concatenating Rows...", total=n_tasks)
+            # print(task_concat.total)
+            grid = []
+
+            while not prog.finished:
+                for row in rows:
+                    grid += [img_join_horizontal(row)]
+                    prog.update(task_concat, advance=1)
+
+                grid = img_join_vertical(grid)
+                prog.update(task_concat, advance=1)
+
+    else:
         rows, row = [], []
         for i, img in enumerate(imgs, start=1):
             row += [img]
@@ -55,19 +83,7 @@ def make_img_grid(
         if not row == []:
             rows += [row]
 
-        n_tasks = len(rows) + 1
-        task_concat = prog.add_task("Concatenating Rows...", total=n_tasks)
-        # print(task_concat.total)
-        grid = []
-
-        while not prog.finished:
-            for row in rows:
-                grid += [img_join_horizontal(row)]
-                prog.update(task_concat, advance=1)
-
-            grid = img_join_vertical(grid)
-            prog.update(task_concat, advance=1)
-
-            print(prog)
+        grid = [img_join_horizontal(row) for row in rows]
+        grid = img_join_vertical(grid)
 
     return grid

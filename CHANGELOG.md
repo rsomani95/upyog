@@ -1,5 +1,7 @@
 ## Unreleased
 * Add a bunch of utilities related to iterating in `utils.utils`
+* `make_img_grid` in non-verbose mode... finally
+
 
 ## 0.5.4 -- 8 August 2022
 * Add `upyog.utils.zip` -- utilities to easily zip files / folders in Python

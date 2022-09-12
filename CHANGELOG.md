@@ -1,5 +1,6 @@
 ## Unreleased
 * Save image with Exif metadata
+* Convert bytes -> human readable sizes
 
 ## 0.5.5 -- 1 September 2022
 * Add a bunch of utilities related to iterating in `utils.utils`

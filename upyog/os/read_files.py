@@ -63,10 +63,10 @@ def _get_files(parent, p, f, extensions) -> list:
     return res
 
 
-image_extensions = set(
+_IMAGE_EXTENSIONS = set(
     k for k, v in mimetypes.types_map.items() if v.startswith("image/")
 )
-video_extensions = set(
+_VIDEO_EXTENSIONS = set(
     [k for k, v in mimetypes.types_map.items() if v.startswith("video/")] + [".mkv"]
 )
 
@@ -89,7 +89,7 @@ def get_image_files(
             include=include,
             exclude=exclude,
             recurse=recurse,
-            extensions=image_extensions,
+            extensions=_IMAGE_EXTENSIONS,
         )
         all_files += files
 
@@ -107,5 +107,5 @@ def get_video_files(
         include=include,
         exclude=exclude,
         recurse=recurse,
-        extensions=video_extensions,
+        extensions=_VIDEO_EXTENSIONS,
     )

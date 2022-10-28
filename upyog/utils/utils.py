@@ -3,7 +3,8 @@ from itertools import islice
 
 __all__ = [
     "flatten", "uniqueify", "get_YYYY_MM_DD", "chunk", "notnone",
-    "lmap", "allequal", "zipsafe", "convert_size"
+    "lmap", "allequal", "zipsafe", "convert_size", "convert_to_tuple",
+    "convert_to_list",
 ]
 
 
@@ -17,12 +18,36 @@ def flatten(x: Any) -> List[Any]:
     return flattened_list
 
 
+def convert_to_list(x: Union[str, Iterable[str]]):
+    # fmt: off
+    if   isinstance(x, list):       return x
+    elif isinstance(x, np.ndarray): return x.tolist()
+    elif isinstance(x, tuple):      return list(x)
+    elif isinstance(x, str):        return [x]
+    else: raise TypeError(f"Expected {str}, got {type(x)}")
+    # fmt: on
+
+
+def convert_to_tuple(x: Union[str, Iterable[str]]) -> Tuple[str]:
+    # fmt: off
+    if   isinstance(x, list):       return tuple(x)
+    elif isinstance(x, np.ndarray): return tuple(x)
+    elif isinstance(x, tuple):      return x
+    elif isinstance(x, str):        return x,
+    else: raise TypeError(f"Expected {str}, got {type(x)}")
+    # fmt: on
+
+
 def uniqueify(x: Collection) -> Collection:
     return sorted(list(set(x)))
 
 
 def get_YYYY_MM_DD(sep="_") -> str:
     return datetime.now().strftime(f"%Y{sep}%m{sep}%d")
+
+
+def get_uuid(n=10) -> str:
+    return uuid.uuid4().hex[:n].lower()
 
 
 # Borrowed from https://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks

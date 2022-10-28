@@ -4,6 +4,7 @@
 * Check corrupted images
 * Convert items to list/tuple
 * Init everything via `from upyog.all import *`
+* Pretty DataFrame printing
 
 
 ## 0.5.5 -- 1 September 2022

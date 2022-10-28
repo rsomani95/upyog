@@ -24,6 +24,18 @@ def check_pil_simd_usage():
             )
 
 
+def check_corrupted_images(filepaths: List[PathLike], verbose=True) -> List[PathLike]:
+    corrupted = []
+    for f in tqdm(filepaths, "Scanning files for corruptions", disable=not verbose):
+        try:    Image.open(f)
+        except: corrupted.append(f)
+
+    if verbose:
+        logger.info(f"Found {len(corrupted)} corrupt files")
+
+    return corrupted
+
+
 # fmt: off
 def sanitise_filename(
     f: str, lowercase=False, prefix=None, truncate: Optional[int] = 240

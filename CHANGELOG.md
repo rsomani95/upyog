@@ -1,4 +1,4 @@
-## Unreleased
+## 0.5.6 -- 31 October 2022
 * Save image with Exif metadata
 * Convert bytes -> human readable sizes
 * Check corrupted images

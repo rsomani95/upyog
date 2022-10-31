@@ -182,13 +182,29 @@ def find_common_files_between_folders(
     return results
 
 
+@call_parse
 def print_folder_distribution(
-    folder: P("Root folder", str)
-):
-    freq = {}
-    folder = Path(folder)
-    for subdir in folder.list_dirs():
-        freq[subdir.name] = len(get_files(subdir, recurse=True))
+    parent_folders: P("Parent folders", str, nargs="+")
+) -> Dict[str, pd.DataFrame]:
+    """
+    Prints the number of files inside each given `parent_folders`.
+    """
+    results = {}
 
-    rich.print(f"----- {folder} -----\n")
-    rich.print_json(freq)
+    for folder in parent_folders:
+        freq = {}
+        folder = Path(folder)
+        for subdir in sorted(folder.list_dirs()):
+            freq[subdir.name] = len(get_files(subdir, recurse=True))
+
+        # rich.print(f"----- {folder} -----\n")
+        # rich.print_json(data=freq)
+        # breakpoint()
+
+        freq = pd.DataFrame([freq]).T.reset_index()
+        freq.columns = ["Sub Folders", "Frequency"]
+        freq = print_df(freq, title = folder.name)
+
+        results[folder.name] = freq
+
+    return results

@@ -1,4 +1,3 @@
-from turtle import pos
 from upyog.imports import *
 from upyog.image.draw import *
 from upyog.image.composition import *

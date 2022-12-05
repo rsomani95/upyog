@@ -17,7 +17,6 @@ import typing
 import uuid
 import warnings
 
-from collections import OrderedDict, defaultdict, namedtuple
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime
@@ -27,6 +26,7 @@ from pathlib import Path
 from pprint import pprint
 from types import SimpleNamespace, MethodType
 from typing import *
+from collections import OrderedDict, defaultdict, namedtuple
 
 import fastcore.all as fastcore
 import matplotlib.pyplot as plt

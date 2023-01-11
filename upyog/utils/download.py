@@ -20,7 +20,7 @@ import urllib.error
 import pathlib
 import itertools
 
-from torch.utils.model_zoo import tqdm
+from tqdm.auto import tqdm
 
 
 USER_AGENT = "pytorch/vision"   # FIXME: Needed?

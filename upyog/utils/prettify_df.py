@@ -3,9 +3,15 @@ SOURCE: https://github.com/khuyentran1401/rich-dataframe/blob/master/rich_datafr
 Some minor modifications made re. color, caption, etc
 """
 
-from tabulate import tabulate
 from upyog.imports import *
 
+
+def cast_to_df(items: Union[pd.DataFrame, pd.Series, dict]):
+    if   isinstance(items, pd.Series):    return pd.DataFrame(items)
+    elif isinstance(items, dict):         return pd.DataFrame(items.items())
+    elif isinstance(items, pd.DataFrame): return items
+    else:
+        raise TypeError(f"Expected `items` to be `pd.DataFrame` |  `pd.Series` | `dict`, got {type(items)} instead")
 
 def print_df(
     df: Union[pd.DataFrame, pd.Series],
@@ -13,8 +19,10 @@ def print_df(
     headers = "keys", tablefmt = "psql",
     **tabulate_kwargs,
 ):
-    if title:                     print(title)
-    if isinstance(df, pd.Series): df = pd.DataFrame(df)
+    from tabulate import tabulate
+
+    if title: print(title)
+    df = cast_to_df(df)
 
     table = tabulate(
         df,
@@ -26,10 +34,10 @@ def print_df(
 
     return table
 
-def print_df(df):
+def print_df(df: Union[pd.DataFrame, pd.Series, dict]):
     from prettytable import PrettyTable
 
-    if isinstance(df, pd.Series): df = pd.DataFrame(df)
+    df = cast_to_df(df)
 
     table = PrettyTable(max_width=50)
     table.field_names = df.columns  # Set the column names

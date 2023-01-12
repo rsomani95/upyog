@@ -1,4 +1,7 @@
-## 0.5.7 -- 31 October 2022
+## Unreleased
+* `print_df` now accepts a dict as input also
+
+## 0.5.8 -- 31 October 2022
 * Bugfixes
 * Simplify printing `pd.DataFrame` (not using `rich` anymore)
 * Additional utility functions related to dates

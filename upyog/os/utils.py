@@ -1,7 +1,10 @@
 from upyog.imports import *
 from upyog.os.read_files import PathLike, get_files
 
-__all__ = ["load_json", "check_pil_simd_usage", "sanitise_filename", "get_file_size"]
+__all__ = [
+    "load_json", "check_pil_simd_usage", "sanitise_filename", "get_file_size",
+    "get_file_creation_date",
+]
 
 
 def load_json(path: PathLike):
@@ -70,4 +73,12 @@ def get_file_size(path: PathLike, units: Literal["B", "KB", "MB", "GB"] = "MB"):
     elif units == "MB": return B/1024**2
     elif units == "GB": return B/1024**3
 
-# fmt: on
+
+def get_file_creation_date(path_to_file) -> str:
+    # Get the timestamp of the file's creation date
+    timestamp = os.path.getctime(path_to_file)
+    
+    # Convert the timestamp to a datetime object
+    date = datetime.fromtimestamp(timestamp)
+    return date.strftime('%Y-%m-%d')
+

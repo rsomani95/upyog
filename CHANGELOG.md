@@ -1,3 +1,8 @@
+## 0.5.7 -- 31 October 2022
+* Bugfixes
+* Simplify printing `pd.DataFrame` (not using `rich` anymore)
+* Additional utility functions related to dates
+
 ## 0.5.6 -- 31 October 2022
 * Save image with Exif metadata
 * Convert bytes -> human readable sizes

@@ -2,8 +2,8 @@ from upyog.imports import *
 from itertools import islice
 
 __all__ = [
-    "flatten", "uniqueify", "get_YYYY_MM_DD", "chunk", "notnone",
-    "lmap", "allequal", "zipsafe", "convert_size", "convert_to_tuple",
+    "flatten", "uniqueify", "get_YYYY_MM_DD", "get_date_YYYY_MM_DD", "get_date_DD_MM_YYYY",
+    "chunk", "notnone", "lmap", "allequal", "zipsafe", "convert_size", "convert_to_tuple",
     "convert_to_list",
 ]
 
@@ -30,11 +30,11 @@ def convert_to_list(x: Union[str, Iterable[str]]):
 
 def convert_to_tuple(x: Union[str, Iterable[str]]) -> Tuple[str]:
     # fmt: off
-    if   isinstance(x, list):       return tuple(x)
-    elif isinstance(x, np.ndarray): return tuple(x)
-    elif isinstance(x, tuple):      return x
-    elif isinstance(x, str):        return x,
-    else: raise TypeError(f"Expected {str}, got {type(x)}")
+    if   isinstance(x, list):              return tuple(x)
+    elif isinstance(x, np.ndarray):        return tuple(x)
+    elif isinstance(x, tuple):             return x
+    elif isinstance(x, (str, int, float)): return x,
+    else: raise TypeError(f"Expected {{str|int|float|list|np.ndarray|tuple}}, got {type(x)}")
     # fmt: on
 
 
@@ -44,6 +44,18 @@ def uniqueify(x: Collection) -> Collection:
 
 def get_YYYY_MM_DD(sep="_") -> str:
     return datetime.now().strftime(f"%Y{sep}%m{sep}%d")
+
+
+def get_date_YYYY_MM_DD(sep="_") -> str:
+    return datetime.now().strftime(f"%Y{sep}%m{sep}%d")
+
+
+def get_date_DD_MM_YYYY(sep="_") -> str:
+    return datetime.now().strftime(f"%d{sep}%m{sep}%Y")
+
+
+def sort_dict_by_keys(x) -> dict:
+    return dict(sorted(x.items()))
 
 
 def get_uuid(n=10) -> str:

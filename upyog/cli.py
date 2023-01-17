@@ -5,9 +5,10 @@ in regular code _and_ for command line interfaces with minimal additional code
 """
 
 from upyog.imports import *
-from fastcore.all import Param
+from fastcore.all import Param, bool_arg
 
-__all__ = ["Param", "call_parse"]
+
+__all__ = ["Param", "P", "call_parse", "bool_arg"]
 
 
 class Param(Param):
@@ -36,6 +37,9 @@ class Param(Param):
         ):
             choices = list(type)
         fastcore.store_attr()
+
+
+P = Param
 
 
 SCRIPT_INFO = SimpleNamespace(func=None)

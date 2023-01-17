@@ -1,5 +1,7 @@
 ## Unreleased
 * `print_df` now accepts a dict as input also
+* Add `write_json`
+* Add popular alias `P` for `Param` natively
 
 ## 0.5.8 -- 31 October 2022
 * Bugfixes

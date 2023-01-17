@@ -3,13 +3,19 @@ from upyog.os.read_files import PathLike, get_files
 
 __all__ = [
     "load_json", "check_pil_simd_usage", "sanitise_filename", "get_file_size",
-    "get_file_creation_date",
+    "get_file_creation_date", "write_json",
 ]
 
 
 def load_json(path: PathLike):
     "Load a JSON file"
     return json.loads(Path(path).read_bytes())
+
+
+def write_json(json_data: dict, path: PathLike, indent=4):
+    "Write `json_data` to `path`"
+    with open(path, "w") as f:
+        json.dump(json_data, path, indent=indent)
 
 
 def check_pil_simd_usage():

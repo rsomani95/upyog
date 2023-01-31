@@ -1,7 +1,9 @@
 ## Unreleased
+
+## 0.5.9 -- 31 January 2022
 * `print_df` now accepts a dict as input also
 * Add `write_json`
-* Add popular alias `P` for `Param` natively
+* cleaner imports in the `upyog.cli` module
 
 ## 0.5.8 -- 31 October 2022
 * Bugfixes

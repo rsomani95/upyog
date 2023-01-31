@@ -5,13 +5,13 @@ in regular code _and_ for command line interfaces with minimal additional code
 """
 
 from upyog.imports import *
-from fastcore.all import Param, bool_arg
+from fastcore.all import bool_arg
 
 
 __all__ = ["Param", "P", "call_parse", "bool_arg"]
 
 
-class Param(Param):
+class Param(fastcore.Param):
     def __init__(
         self,
         help=None,

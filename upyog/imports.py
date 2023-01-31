@@ -16,6 +16,7 @@ import time
 import typing
 import uuid
 import warnings
+import subprocess
 
 from copy import deepcopy
 from dataclasses import dataclass

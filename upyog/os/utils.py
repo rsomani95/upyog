@@ -15,7 +15,7 @@ def load_json(path: PathLike):
 def write_json(json_data: dict, path: PathLike, indent=4):
     "Write `json_data` to `path`"
     with open(path, "w") as f:
-        json.dump(json_data, path, indent=indent)
+        json.dump(json_data, f, indent=indent)
 
 
 def check_pil_simd_usage():

@@ -1,4 +1,5 @@
 ## Unreleased
+* Bugfix `write_json`
 
 ## 0.5.9 -- 31 January 2022
 * `print_df` now accepts a dict as input also

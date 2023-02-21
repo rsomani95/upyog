@@ -14,6 +14,9 @@ class Visualiser:
         self.font_size = font_size
         self.font_path = font_path or DEFAULT_FONT_PATH
 
+        if not Path(self.font_path).exists():
+            raise FileNotFoundError(f"{self.font_path} does not exist.")
+
     @staticmethod
     def _as_int_array(img_array: np.ndarray):
         assert img_array.ndim == 3

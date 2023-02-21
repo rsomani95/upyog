@@ -1,4 +1,5 @@
 ## Unreleased
+* Fix default font path (hacky fix, but works)
 * Bugfix `write_json`
 
 ## 0.5.9 -- 31 January 2022

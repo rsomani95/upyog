@@ -203,9 +203,10 @@ def get_font(font_path=None, size=30) -> ImageFont.FreeTypeFont:
         return get_fallback_font()
 
 
-DEFAULT_FONT_PATH = str(
-    Path(__file__).parent.parent.parent / "assets" / "fonts" / "EuroStyleNormal.ttf"
-)
+# DEFAULT_FONT_PATH = str(
+#     Path(__file__).parent.parent.parent / "assets" / "fonts" / "EuroStyleNormal.ttf"
+# )
+DEFAULT_FONT_PATH = str(Path(__file__) / "_Inter-Light.ttf")
 
 
 def get_fallback_font() -> ImageFont.FreeTypeFont:

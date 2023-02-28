@@ -10,6 +10,8 @@ __all__ = ["Visualiser"]
 class Visualiser:
     def __init__(self, img: Image.Image, font_path: Optional[str] = None, font_size=30):
         copy = True
+        if not isinstance(img, Image.Image):
+            raise TypeError(f"Expected a PIL Image, got {type(img)} instead.")
         self.img = deepcopy(img) if copy else img
         self.font_size = font_size
         self.font_path = font_path or DEFAULT_FONT_PATH

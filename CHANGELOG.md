@@ -1,6 +1,7 @@
 ## Unreleased
 * Fix default font path (hacky fix, but works)
 * Bugfix `write_json`
+* Add `title` func to `Visualiser`
 
 ## 0.5.9 -- 31 January 2022
 * `print_df` now accepts a dict as input also

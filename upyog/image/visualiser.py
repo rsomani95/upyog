@@ -236,6 +236,13 @@ class Visualiser:
         )
         return self.img
 
+    def title(self, text: str, color=(255, 255, 255)):
+        xyxy = (0, 0, self.img.width, self.img.height)
+        self.img = self.draw_text_within_xyxy(
+            xyxy, text, 0.05, color, "top", font_bg=False, font_bordered=True
+        )
+        return self.img
+
     def draw_rule_of_thirds(self, thickness=5, opacity=0.4):
         self.draw_vertical_bars([1 / 3, 2 / 3], thickness=thickness, opacity=opacity)
         self.draw_horizontal_bars([1 / 3, 2 / 3], thickness=thickness, opacity=opacity)

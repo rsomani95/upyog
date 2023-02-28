@@ -8,7 +8,8 @@ __all__ = []
 @fastcore.patch
 def __or__(self: Image.Image, other: Image.Image):
     "Horizontally stack two PIL Images"
-    assert isinstance(other, Image.Image)
+    if not isinstance(other, Image.Image):
+        raise TypeError(f"Can only stack with PIL Images. Got {type(other)}")
     this_W, this_H = self.size
     that_W, that_H = other.size
 
@@ -28,7 +29,8 @@ def __or__(self: Image.Image, other: Image.Image):
 @fastcore.patch
 def __floordiv__(self: Image.Image, other: Image.Image):
     "Vertically stack two PIL Images"
-    assert isinstance(other, Image.Image)
+    if not isinstance(other, Image.Image):
+        raise TypeError(f"Can only stack with PIL Images. Got {type(other)}")
     this_W, this_H = self.size
     that_W, that_H = other.size
 

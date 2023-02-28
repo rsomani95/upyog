@@ -387,7 +387,8 @@ def draw_text(
     height_constraints: Tuple[int, int] = (0.0, 1.0),
     width_constraints: Tuple[int, int] = (0.0, 1.0),
 ):
-    assert position in TEXT_POSITIONS.__args__
+    if not position in TEXT_POSITIONS.__args__:
+        raise ValueError(f"position='{position}' is invalid. Choose either one of {TEXT_POSITIONS.__args__}")
     font = get_font(font_path, font_size)
     padding = int(img.height * padding) if isinstance(padding, float) else padding
 
@@ -469,7 +470,8 @@ def _draw_multiline_text(
     height_constraints: Tuple[int, int] = (0.0, 1.0),
     width_constraints: Tuple[int, int] = (0.0, 1.0),
 ):
-    assert position in TEXT_POSITIONS.__args__
+    if not position in TEXT_POSITIONS.__args__:
+        raise ValueError(f"position='{position}' is invalid. Choose either one of {TEXT_POSITIONS.__args__}")
     line_height = get_line_height(font)
     total_line_height = get_total_line_height(lines, font, line_spacing)
     draw = ImageDraw.Draw(img)

@@ -22,7 +22,7 @@ def save_image_with_metadata(
     elif ext != "jpg":
         raise ValueError(f"Only '.jpg' extensions are acceptable, you provided {ext}")
 
-    assert json.dumps(metadata)
+    assert json.dumps(metadata), f"JSON Data not serialisable!"
     assert ".jpg" in filepath, f"Expected full filepath with '.jpg' extension in filename"
 
     # See https://exif.readthedocs.io/en/latest/usage.html

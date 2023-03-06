@@ -1,4 +1,4 @@
-## Unreleased
+## 0.6.1 -- 6 Mar 2022
 * Fix default font path (hacky fix, but works)
 * Bugfix `write_json`
 * Add `title` func to `Visualiser`

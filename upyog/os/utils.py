@@ -2,8 +2,8 @@ from upyog.imports import *
 from upyog.os.read_files import PathLike, get_files
 
 __all__ = [
-    "load_json", "check_pil_simd_usage", "sanitise_filename", "get_file_size",
-    "get_file_creation_date", "write_json",
+    "load_json", "read_json", "check_pil_simd_usage", "sanitise_filename", "get_file_size",
+    "get_file_creation_date", "write_json", "write_text",
 ]
 
 
@@ -12,10 +12,20 @@ def load_json(path: PathLike):
     return json.loads(Path(path).read_bytes())
 
 
+def read_json(path: PathLike):
+    return load_json(path)
+
+
 def write_json(json_data: dict, path: PathLike, indent=4):
     "Write `json_data` to `path`"
     with open(path, "w") as f:
         json.dump(json_data, f, indent=indent)
+
+
+def write_text(text: str, save_path: PathLike):
+    "Write text to a text file"
+    with open(str(save_path), 'w') as f:
+        f.write(text)
 
 
 def check_pil_simd_usage():

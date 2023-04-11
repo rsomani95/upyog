@@ -197,13 +197,11 @@ def print_folder_distribution(
         for subdir in sorted(folder.list_dirs()):
             freq[subdir.name] = len(get_files(subdir, recurse=True))
 
-        # rich.print(f"----- {folder} -----\n")
-        # rich.print_json(data=freq)
-        # breakpoint()
-
         freq = pd.DataFrame([freq]).T.reset_index()
         freq.columns = ["Sub Folders", "Frequency"]
-        freq = print_df(freq, title = folder.name)
+        rich.print()
+        rich.print(f"---------- {folder.name.upper()} ----------")
+        freq = print_df(freq)
 
         results[folder.name] = freq
 

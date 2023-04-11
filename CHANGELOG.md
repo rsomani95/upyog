@@ -1,10 +1,13 @@
-## 0.6.1 -- 6 Mar 2022
-* Fix default font path (hacky fix, but works)
+## 0.6.2 -- 11 Apr 2023
+* Myriad bugfixes
+
+## 0.6.1 -- 6 Mar 2023
+* Fix default font path (hacky but works)
 * Bugfix `write_json`
 * Add `title` func to `Visualiser`
-* Better error messages
+* Add `write_text`
 
-## 0.5.9 -- 31 January 2022
+## 0.5.9 -- 31 January 2023
 * `print_df` now accepts a dict as input also
 * Add `write_json`
 * cleaner imports in the `upyog.cli` module

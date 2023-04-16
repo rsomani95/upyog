@@ -30,7 +30,7 @@ def get_ratio(from_WH, to_WH) -> np.ndarray:
 def resize_with_padding(
     img: Image.Image,
     target_WH,
-    pad_fill=0,
+    pad_fill: Union[int, Tuple[int, int, int]] = 0,
     pad_location: Literal["center", "top"] = "center",
     # mode: str = "RGB",
 ):
@@ -47,7 +47,13 @@ def resize_with_padding(
         box = ((to_W - W) // 2, (to_H - H) // 2)
 
     # Create a new image and paste the resized on it
-    color = (pad_fill, pad_fill, pad_fill) if pad_fill else None
+    if pad_fill:
+        if   isinstance(pad_fill, int):          color = (pad_fill, pad_fill, pad_fill)
+        elif isinstance(pad_fill, (list,tuple)): color = tuple(pad_fill)
+        assert isinstance(color, tuple)
+    else:
+        color = None
+
     padded_img = Image.new(orig_mode, (to_W, to_H), color=color)
     padded_img.paste(img.resize((W, H), Image.ANTIALIAS), box)
 

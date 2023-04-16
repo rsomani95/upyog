@@ -5,10 +5,10 @@ in regular code _and_ for command line interfaces with minimal additional code
 """
 
 from upyog.imports import *
-from fastcore.all import bool_arg
+from fastcore.all import bool_arg, store_true
 
 
-__all__ = ["Param", "P", "call_parse", "bool_arg"]
+__all__ = ["Param", "P", "call_parse", "bool_arg", "store_true"]
 
 
 class Param(fastcore.Param):

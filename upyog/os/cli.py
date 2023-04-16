@@ -1,7 +1,7 @@
 from upyog.imports import *
 from upyog.os.read_files import *
 from upyog.utils import *
-from upyog.cli import Param as P, call_parse
+from upyog.cli import *
 
 
 __all__ = ["move_files", "cleanup_duplicates"]
@@ -206,3 +206,26 @@ def print_folder_distribution(
         results[folder.name] = freq
 
     return results
+
+
+@call_parse
+def move_files(
+    i: P(help="[] Path to the input directories", type=str, nargs="+") = None,
+    o: P(help="[out_dir] Path to the output directory", type=str) = None,
+    move: P(help="Move files (destructively)", type=store_true) = False,
+):
+    inputs = i
+    out_path = Path(o)
+    out_path.mkdir(exist_ok=True)
+
+    for p in inputs:
+        assert Path(p).exists(), f"Invalid path: {p}"
+    img_files = flatten([get_files(p, recurse=True) for p in inputs])
+
+    for f in tqdm(img_files):
+        if move:
+            shutil.move(f, out_path / f.name)
+        else:
+            shutil.copy(f, out_path / f.name)
+
+    print(f"Moved {len(img_files)} files to {out_path}")

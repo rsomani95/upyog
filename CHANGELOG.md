@@ -1,3 +1,6 @@
+## Unreleased
+* `os.cli` - Add `move-files` program to move or copy files from multiple source folders to one target folder easily
+
 ## 0.6.2 -- 11 Apr 2023
 * Myriad bugfixes
 

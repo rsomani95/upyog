@@ -13,6 +13,7 @@ def create_image_grid_from_folders(
     o: P("Output path - must be a folder (created if it doesn't exist)", str) = None,
     H: P("Height of _each_ image inside the grid", int) = 384,
     W: P("Width of each image inside the grid", int) = 640,
+    N: P("(Optional) Max no. of images to select. If not specified, all are selected", int) = None,
     num_columns: P("Number of columns in the grid", int) = 3,
     sample:      P("Random sample this no. of files from the folder", int) = None,
     shuffle:   P("(Bool) shuffle the order of files", action="store_true") = False,
@@ -62,19 +63,24 @@ def create_image_grid_from_folders(
     if foreach:
         for path in input_paths:
             files = get_image_files(path)
-            grid = make_grid_from_files(files, num_columns, (W, H), sample, shuffle)
-            grid.save(output_path / f"{path.stem}.jpg", quality=exp_quality)
+            grid = make_grid_from_files(files, num_columns, (W, H), sample, shuffle, N)
+
+            export_path = output_path / f"{path.stem}.jpg"
+            grid.save(export_path, quality=exp_quality)
+            rich.print(f"Saved to {export_path}")
     else:
         files = flatten(get_image_files(path) for path in input_paths)
-        grid = make_grid_from_files(files, num_columns, (W, H), sample, shuffle)
-        grid.save(output_path / "Image-Grid.jpg", quality=exp_quality)
+        grid = make_grid_from_files(files, num_columns, (W, H), sample, shuffle, N)
+
+        export_path = output_path / "Image-Grid.jpg"
+        grid.save(export_path, quality=exp_quality)
+        rich.print(f"Saved to {export_path}")
 
 
-def make_grid_from_files(files, ncol, size_WH, sample=None, shuffle=False):
-    if sample:
-        files = random.sample(files, sample)
-    if shuffle:
-        random.shuffle(files)
+def make_grid_from_files(files, ncol, size_WH, sample=None, shuffle=False, N=None):
+    if sample:  files = random.sample(files, sample)
+    if shuffle: random.shuffle(files)
+    if N:       files = files[:N]
 
     imgs = [load_image(fn) for fn in files]
     return make_img_grid(imgs, ncol, size_WH, pad=True)

@@ -1,5 +1,5 @@
 ## Unreleased
-* `os.cli` - Add `move-files` program to move or copy files from multiple source folders to one target folder easily
+* Improve `move-files` and `generate-image-grid` CLI programs
 
 ## 0.6.2 -- 11 Apr 2023
 * Myriad bugfixes

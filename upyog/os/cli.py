@@ -8,33 +8,6 @@ __all__ = ["move_files", "cleanup_duplicates"]
 
 
 @call_parse
-def move_files(
-    i: P("Input folders to move the files from", str, nargs="+", metavar="INP") = None,
-    o: P("Path to the output folders", str) = None,
-    move: P("Move files (desctructively)", action="store_true") = False,
-):
-    """
-            --------- FILE MOVER ---------
-
-    Move files from an arbitrary number of input folders to a _single_ output folder.
-
-    The input folders are scanned recursively.
-    If the output folder doesn't exist, it is created
-    """
-    recurse = True
-    files = flatten([get_files(p, recurse=recurse) for p in i])
-    out_dir = Path(o)
-    if not out_dir.exists():
-        rich.print(f"Creating output folder: {out_dir}")
-        out_dir.mkdir(exist_ok=True, parents=True)
-
-    mover = shutil.move if move else shutil.copy
-
-    for file in track(files, "Moving Files..."):
-        mover(str(file), str(out_dir))
-
-
-@call_parse
 def remove_duplicates_from_folder(
     i: P("Single input folder that is to be cleaned up", str) = None,
     t: P(
@@ -210,22 +183,24 @@ def print_folder_distribution(
 
 @call_parse
 def move_files(
-    i: P(help="[] Path to the input directories", type=str, nargs="+") = None,
-    o: P(help="[out_dir] Path to the output directory", type=str) = None,
+    i: P(help="Path to the input directories", type=str, nargs="+") = None,
+    o: P(help="Path to the output directory", type=str) = None,
     move: P(help="Move files (destructively)", type=store_true) = False,
 ):
     inputs = i
     out_path = Path(o)
     out_path.mkdir(exist_ok=True)
 
+    files = flatten([get_files(p, recurse=True) for p in inputs])
+
     for p in inputs:
-        assert Path(p).exists(), f"Invalid path: {p}"
-    img_files = flatten([get_files(p, recurse=True) for p in inputs])
+        if not Path(p).exists(): raise NotADirectoryError(f"Invalid path: {p}")
 
-    for f in tqdm(img_files):
-        if move:
-            shutil.move(f, out_path / f.name)
-        else:
-            shutil.copy(f, out_path / f.name)
+    before_moving = get_files(out_path)
+    for f in tqdm(files):
+        if move: shutil.move(f, out_path / f.name)
+        else:    shutil.copy(f, out_path / f.name)
+    after_moving = get_files(out_path)
+    new_files = set(after_moving) - set(before_moving)
 
-    print(f"Moved {len(img_files)} files to {out_path}")
+    logger.info(f"Of {len(files)} files from input folders, moved {len(new_files)} files to output folder")

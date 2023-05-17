@@ -1,6 +1,9 @@
 ## Unreleased
+
+## 0.7.1 -- 17 May 2023
 * Rename `InferenceDataset` to `ImageInferenceDataset`
 * Clean up imports
+* Add some more ML functionality from private packages
 
 ## 0.7.0 -- 17 May 2023
 * Improve `move-files` and `generate-image-grid` CLI programs

@@ -4,6 +4,7 @@ from upyog.os.read_files import PathLike, get_files
 __all__ = [
     "load_json", "read_json", "check_pil_simd_usage", "sanitise_filename", "get_file_size",
     "get_file_creation_date", "write_json", "write_text",
+    "is_platform_macos", "is_platform_windows", "is_platform_linux",
 ]
 
 
@@ -98,3 +99,7 @@ def get_file_creation_date(path_to_file) -> str:
     date = datetime.fromtimestamp(timestamp)
     return date.strftime('%Y-%m-%d')
 
+
+def is_platform_macos() -> bool:   return platform.system().lower() == "darwin"
+def is_platform_windows() -> bool: return platform.system().lower() == "windows"
+def is_platform_linux() -> bool:   return platform.system().lower() == "linux"

@@ -1,5 +1,6 @@
 ## Unreleased
 * Improve `move-files` and `generate-image-grid` CLI programs
+* Add new `ml` sub-package, copying over a bunch of common utilities across multiple private libraries
 
 ## 0.6.2 -- 11 Apr 2023
 * Myriad bugfixes

@@ -1,6 +1,7 @@
 import argparse
 import enum
 import functools
+import importlib
 import io
 import inspect
 import json
@@ -53,3 +54,8 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 PathLike = Union[str, Path]
 
 logger = logger.opt(colors=True)
+
+def is_package_available(name: str) -> bool:
+    if importlib.util.find_spec(name):
+          return True
+    else: return False

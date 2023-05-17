@@ -3,10 +3,10 @@ from upyog.os import get_image_files
 from upyog.image import load_image
 
 
-__all__ = ["InferenceDataset"]
+__all__ = ["ImageInferenceDataset"]
 
 
-class InferenceDataset(Dataset, ABC):
+class ImageInferenceDataset(Dataset, ABC):
     """
     Base class that gathers files from a myriad number of folders / lists of
     filenames and stores them as `self.fnames`.

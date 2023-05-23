@@ -1,4 +1,5 @@
 ## Unreleased
+* Font path bugfix...
 
 ## 0.7.1 -- 17 May 2023
 * Rename `InferenceDataset` to `ImageInferenceDataset`

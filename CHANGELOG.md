@@ -1,4 +1,4 @@
-## Unreleased
+## 0.7.2 -- 25 May 2023
 * Font path bugfix...
 * Port over more ML utilities to `upyog.ml`
 

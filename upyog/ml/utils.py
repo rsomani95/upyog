@@ -2,9 +2,11 @@ from upyog.ml.imports import *
 from upyog.os import *
 
 
-__all__ = ["to_np", "to_torch", "save_tensor_to_json"]
+__all__ = ["to_np", "to_torch", "save_tensor_to_json", "pick_device"]
 
 
+# NOTE: PyTorch Lightning specific... do not use unless you know exactly what this
+# function is meant for...
 def get_num_gpus(gpus: Union[List[int], int]) -> Union[None, int]:
     if is_platform_macos():
         return None
@@ -37,3 +39,30 @@ def save_tensor_to_json(data: Union[Tensor, np.ndarray], path: PathLike):
     # filename = f"{path.stem}.json"  # Ensure extension is .json
     # path = path.parent / filename
     write_json(data, path, indent=None)
+
+
+def pick_device(device=None) -> torch.device:
+    if device is None:
+        if torch.cuda.is_available():
+            return torch.device("cuda:0")
+        else:
+            # MacOS
+            if platform.system() == "Darwin":
+                try: return torch.device("mps")
+                except: return torch.device("cpu")
+            else:
+                return torch.device("cpu")
+
+    if isinstance(device, int):
+        return torch.device(f"cuda:{device}")
+
+    if device == "cpu":
+        return torch.device("cpu")
+
+    if device == "mps":
+        return torch.device("mps")
+
+    if isinstance(device, torch.device):
+        return device
+
+    raise ValueError(f"Invalid device value: {device}")

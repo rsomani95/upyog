@@ -1,5 +1,6 @@
 ## Unreleased
 * Font path bugfix...
+* Port over more ML utilities to `upyog.ml`
 
 ## 0.7.1 -- 17 May 2023
 * Rename `InferenceDataset` to `ImageInferenceDataset`

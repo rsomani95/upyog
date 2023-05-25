@@ -6,7 +6,7 @@ from upyog.utils.utils import flatten
 Taken from fastaiv1: https://github.com/fastai/fastai1/blob/a8327427ad5137c4899a1b4f74745193c9ea5be3/fastai/data_block.py#L22-L47
 """
 
-__all__ = ["PathLike", "get_files", "get_image_files", "get_video_files"]
+__all__ = ["PathLike", "get_files", "get_image_files", "get_video_files", "collate_image_filenames"]
 
 
 def get_files(
@@ -109,3 +109,36 @@ def get_video_files(
         recurse=recurse,
         extensions=_VIDEO_EXTENSIONS,
     )
+
+
+def collate_image_filenames(
+    filenames: List[os.PathLike] = None,
+    img_folders: Optional[List[os.PathLike]] = None,
+    sort: bool = True,
+    return_str: bool = False,
+) -> List[PathLike]:
+    """
+    Take a list of `fnames` and `img_folders`, and return a flattened list of
+    all image files in `img_folders` and `fnames` as a single list
+    """
+    all_files = []
+    if filenames is not None:
+        assert isinstance(filenames, list)
+        filenames = [Path(f) for f in filenames]
+        all_files.extend(filenames)
+
+    if img_folders is not None:
+        if isinstance(img_folders, (str, Path)):
+            img_folders = [img_folders]
+        for folder in img_folders:
+            if not Path(folder).exists():
+                raise FileNotFoundError(f"{folder} not found on disk.")
+        for folder in img_folders:
+            all_files.extend(get_image_files(folder))
+
+    if sort:
+        all_files = sorted(all_files)
+
+    if return_str:
+          return [str(f) for f in all_files]
+    else: return all_files

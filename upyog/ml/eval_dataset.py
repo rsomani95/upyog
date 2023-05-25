@@ -1,9 +1,9 @@
 from upyog.ml.imports import *
-from upyog.os import get_image_files
+from upyog.os import get_image_files, collate_image_filenames
 from upyog.image import load_image
 
 
-__all__ = ["ImageInferenceDataset"]
+__all__ = ["ImageInferenceDataset", "image_filename_collate_fn"]
 
 
 class ImageInferenceDataset(Dataset, ABC):
@@ -21,19 +21,19 @@ class ImageInferenceDataset(Dataset, ABC):
         img_folders: Optional[List[os.PathLike]] = None,
         sort_fnames: bool = True,
     ):
-        self.fnames = []
-        if fnames:
-            assert isinstance(fnames, list)
-            self.fnames.extend(fnames)
-
-        if img_folders:
-            assert isinstance(img_folders, list)
-            assert [Path(f).exists() for f in img_folders]
-            for folder in img_folders:
-                self.fnames.extend(get_image_files(folder))
-
+        self.fnames = collate_image_filenames(fnames, img_folders)
         if sort_fnames:
             self.fnames.sort()
+
+        num_unique_files = len(set(self.fnames))
+        if not num_unique_files == len(self.fnames):
+            before = len(self.fnames)
+            logger.warning(f"Found {before} - {num_unique_files} duplicate filenames")
+
+            self.fnames = sorted(set(self.fnames))
+            after = len(self.fnames)
+
+            logger.info(f"Removed duplicate filenames. Total no. filenames: {before} -> {after}")
 
     def post_init(self):
         pass

@@ -52,15 +52,32 @@ def add_top_level_metadata(
     author: str,
     license: str,
     description: str,
-):
-    mlmod.author = author
-    mlmod.license = license
-    mlmod.short_description = description
+) -> ct.models.MLModel:
+    ""
+
+    """
+    NOTE: We always use the model spec to add the metadata because editing an .mlpackage
+    file directly is unreliable -- the metadata shows up in the model in an interactive
+    python session but gets erased when you save the model file. Wtf??
+    """
+
+    if isinstance(mlmod, MLModelSpec):
+        pass
+
+    elif isinstance(mlmod, ct.models.MLModel):
+        spec = mlmod.get_spec()
+
+    spec.description.metadata.author = author
+    spec.description.metadata.license = license
+    spec.description.metadata.shortDescription = description
 
     check_version_string(version)
-    mlmod.version = version
+    spec.description.metadata.versionString = version
 
-    return mlmod
+    try:
+        return ct.models.MLModel(spec)
+    except:
+        return ct.models.MLModel(spec, weights_dir=mlmod.weights_dir)
 
 
 def check_version_string(version: str):

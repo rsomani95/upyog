@@ -2,7 +2,7 @@ from upyog.imports import *
 from itertools import islice
 
 __all__ = [
-    "flatten", "uniqueify", "get_YYYY_MM_DD", "get_date_YYYY_MM_DD", "get_date_DD_MM_YYYY",
+    "flatten", "uniqueify",
     "chunk", "notnone", "lmap", "allequal", "zipsafe", "convert_size", "convert_to_tuple",
     "convert_to_list",
 ]
@@ -40,18 +40,6 @@ def convert_to_tuple(x: Union[str, Iterable[str]]) -> Tuple[str]:
 
 def uniqueify(x: Collection) -> Collection:
     return sorted(list(set(x)))
-
-
-def get_YYYY_MM_DD(sep="_") -> str:
-    return datetime.now().strftime(f"%Y{sep}%m{sep}%d")
-
-
-def get_date_YYYY_MM_DD(sep="_") -> str:
-    return datetime.now().strftime(f"%Y{sep}%m{sep}%d")
-
-
-def get_date_DD_MM_YYYY(sep="_") -> str:
-    return datetime.now().strftime(f"%d{sep}%m{sep}%Y")
 
 
 def sort_dict_by_keys(x) -> dict:

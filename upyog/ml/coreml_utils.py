@@ -2,7 +2,9 @@ from upyog.ml.imports import *
 import coremltools as ct
 
 
-__all__ = ["get_coreml_input"]
+__all__ = ["get_coreml_input", "add_top_level_metadata"]
+
+MLModelSpec = ct.proto.Model_pb2.Model
 
 
 # TODO: Get from upyog
@@ -42,3 +44,29 @@ def get_coreml_input(
         color_layout=input_format,
     )
     return [input_type]
+
+
+def add_top_level_metadata(
+    mlmod: Union[ct.models.MLModel, MLModelSpec],
+    version: str,
+    author: str,
+    license: str,
+    description: str,
+):
+    mlmod.author = author
+    mlmod.license = license
+    mlmod.short_description = description
+
+    check_version_string(version)
+    mlmod.version = version
+
+    return mlmod
+
+
+def check_version_string(version: str):
+    if not len(version.split(".")) == 3:
+        raise ValueError(
+            f"Version string seems to be in the wrong format. Expected something like "
+            f"'X.Y.Z' or 'X.Y.Z-rc3' ( <MAJOR.MINOR.PATCH-EXTRA> ), got {version} instead. "
+            f"See https://semver.org/ for more info"
+        )

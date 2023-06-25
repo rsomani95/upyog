@@ -17,9 +17,17 @@ def get_num_gpus(gpus: Union[List[int], int]) -> Union[None, int]:
         return len(gpus)
 
 
-def to_np(tensor: Tensor, dtype=np.float32):
-    if isinstance(tensor, np.ndarray): return tensor
-    return tensor.detach().cpu().numpy().astype(dtype)
+def to_np(
+    data: Union[Tensor, np.ndarray, Collection[Any]],
+    dtype=np.float32
+):
+    "Convert a Tensor / array / collection of numbers to a NP array and optionally change its dtype"
+    if   isinstance(data, np.ndarray): pass
+    elif isinstance(data, Tensor):     data = data.detach().cpu().numpy()
+    else:                              data = np.array(data)
+
+    if dtype is not None: return data.astype(dtype)
+    else:                 return data
 
 
 def to_torch(x) -> Tensor:

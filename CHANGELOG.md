@@ -1,3 +1,7 @@
+## 0.7.3 -- 5 July 2023
+* Minor changes
+* Update dependency
+
 ## 0.7.2 -- 25 May 2023
 * Font path bugfix...
 * Port over more ML utilities to `upyog.ml`

@@ -1,3 +1,6 @@
+## 0.7.4 -- 12 Jul 2023
+* Include font distributed with package
+
 ## 0.7.3 -- 5 July 2023
 * Minor changes
 * Update dependency

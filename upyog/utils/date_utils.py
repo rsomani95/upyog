@@ -9,7 +9,8 @@ __all__ = [
 
 
 def get_YYYY_MM_DD(sep="_") -> str:
-    return datetime.now().strftime(f"%Y{sep}%m{sep}%d")
+    warnings.warn(f"`get_YYYY_MM_DD` is deprecated. Please call `get_date_YYYY_MM_DD()` instead")
+    return get_date_YYYY_MM_DD()
 
 
 def get_date_YYYY_MM_DD(sep="_") -> str:

@@ -5,6 +5,7 @@ __all__ = [
     "load_json", "read_json", "check_pil_simd_usage", "sanitise_filename", "get_file_size",
     "get_file_creation_date", "write_json", "write_text",
     "is_platform_macos", "is_platform_windows", "is_platform_linux",
+    "convert_number_to_human_readable_format",
 ]
 
 
@@ -98,6 +99,27 @@ def get_file_creation_date(path_to_file) -> str:
     # Convert the timestamp to a datetime object
     date = datetime.fromtimestamp(timestamp)
     return date.strftime('%Y-%m-%d')
+
+
+def convert_number_to_human_readable_format(number: Union[int, float], approx=True) -> str:
+    """
+    Formats a number to be human readable. Works best for larger numbers up to
+    1 quintillion (1e18)
+              100 -> 100
+            10000 -> 10k
+          100,000 -> 100k
+      100,000,000 -> 100m
+    1,000,000,000 -> 1b
+    """
+    magnitude = 0
+    while abs(number) >= 1000:
+        magnitude += 1
+        number /= 1000.0
+
+    if approx:
+        return '%d%s' % (number, ['', 'k', 'm', 'b', 't', 'q'][magnitude])
+    else:
+        return '%.1f%s' % (number, ['', 'k', 'm', 'b', 't', 'q'][magnitude])
 
 
 def is_platform_macos() -> bool:   return platform.system().lower() == "darwin"

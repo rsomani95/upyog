@@ -21,6 +21,9 @@ import pathlib
 import itertools
 
 from tqdm.auto import tqdm
+from pathlib import Path
+
+__all__ = ["download_url", "calculate_md5", "download_file_from_google_drive", "get_filename_from_url"]
 
 
 USER_AGENT = "pytorch/vision"   # FIXME: Needed?
@@ -96,6 +99,13 @@ def _get_google_drive_file_id(url: str) -> Optional[str]:
         return None
 
     return match.group("id")
+
+
+def get_filename_from_url(url) -> str:
+    ""
+    from urllib.parse import urlparse
+    url = urlparse(url)
+    return Path(url.path).name
 
 
 def download_url(

@@ -1,3 +1,11 @@
+## Unreleased
+* Utils
+  * get filename from url
+* ML
+  * add PIL preprocessing types to `PreprocessingParams`
+* Other
+  * Add `tqdm` dependency
+
 ## 0.7.4 -- 12 Jul 2023
 * Include font distributed with package
 

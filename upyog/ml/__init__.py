@@ -1,4 +1,5 @@
 from .imports import *
+from .activations import *
 from .eval_dataset import *
 from .model_utils import *
 from .preprocessing import *

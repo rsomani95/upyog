@@ -3,6 +3,7 @@
   * get filename from url
 * ML
   * add PIL preprocessing types to `PreprocessingParams`
+  * added `SoftmaxProcessor` and `SigmoidProcessor`
 * Other
   * Add `tqdm` dependency
 

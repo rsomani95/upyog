@@ -1,4 +1,4 @@
-## Unreleased
+## 0.7.5 -- 17 Aug 2023
 * Utils
   * get filename from url
 * ML

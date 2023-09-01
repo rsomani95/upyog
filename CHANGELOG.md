@@ -1,3 +1,6 @@
+## 0.7.7 -- 28 Aug 2023
+* Make pil interpolation map an internal attribute, as this API doesn't work with PIL-SIMD 9.0
+
 ## 0.7.5 -- 17 Aug 2023
 * Utils
   * get filename from url

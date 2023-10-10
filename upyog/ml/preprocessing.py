@@ -20,7 +20,7 @@ class PreprocessingParams:
     pad_fill: Optional[Tuple[int, int, int]] = None
 
     @property
-    def _pil_interpolation_map():
+    def _pil_interpolation_map(self):
         if not "post" in PIL.__version__:
             return {
                  "bicubic" : Image.Resampling.BICUBIC,

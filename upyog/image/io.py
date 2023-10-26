@@ -1,6 +1,6 @@
 from upyog.imports import *
 
-__all__ = ["load_image", "resize_with_padding"]
+__all__ = ["load_image", "resize_with_padding", "image_to_base64"]
 
 
 def load_image(fn, mode: Optional[str] = "RGB") -> Image.Image:
@@ -58,3 +58,11 @@ def resize_with_padding(
     padded_img.paste(img.resize((W, H), Image.ANTIALIAS), box)
 
     return padded_img
+
+
+def image_to_base64(img: Image.Image) -> str:
+    "Convert a PIL image to a base64 encoded string"
+    buffered = io.BytesIO()
+    img.save(buffered, format="JPEG")
+    img_base64 = base64.b64encode(buffered.getvalue()).decode()
+    return f"data:image/jpeg;base64,{img_base64}"

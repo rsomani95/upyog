@@ -2,6 +2,7 @@
 * Bugfixes
 * `image_to_base64` util to convert PIL -> base64 strings
 * UMAP tools: `upyog.ml.umap`
+* Add `upyog.ann.CosineSimilarityQueryRunner` for exploring cosine similarity between embeddings
 * Refactor `make_img_grid`
 
 

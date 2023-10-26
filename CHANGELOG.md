@@ -2,7 +2,7 @@
 * Bugfixes
 * `image_to_base64` util to convert PIL -> base64 strings
 * UMAP tools: `upyog.ml.umap`
-* 
+* Refactor `make_img_grid`
 
 
 ## 0.7.7 -- 28 Aug 2023

@@ -55,7 +55,10 @@ def resize_with_padding(
         color = None
 
     padded_img = Image.new(orig_mode, (to_W, to_H), color=color)
-    padded_img.paste(img.resize((W, H), Image.ANTIALIAS), box)
+    try:
+        padded_img.paste(img.resize((W, H), Image.Resampling.LANCZOS), box)
+    except:
+        padded_img.paste(img.resize((W, H), Image.LANCZOS), box)
 
     return padded_img
 

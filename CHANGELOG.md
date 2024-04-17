@@ -4,6 +4,8 @@
 * UMAP tools: `upyog.ml.umap`
 * Add `upyog.ann.CosineSimilarityQueryRunner` for exploring cosine similarity between embeddings
 * Refactor `make_img_grid`
+* `resize_with_padding` updated for new Pillow versions
+* `upyog.os.cli.move_files` has the option to randomly sample input files
 
 
 ## 0.7.7 -- 28 Aug 2023

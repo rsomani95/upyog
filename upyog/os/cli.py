@@ -186,12 +186,17 @@ def move_files(
     i: P(help="Path to the input directories", type=str, nargs="+") = None,
     o: P(help="Path to the output directory", type=str) = None,
     move: P(help="Move files (destructively)", type=store_true) = False,
+    max_N: P("Max no. of files from `i` to move. If provided, a random sample is taken", int) = None,
 ):
     inputs = i
     out_path = Path(o)
     out_path.mkdir(exist_ok=True)
 
     files = flatten([get_files(p, recurse=True) for p in inputs])
+
+    if max_N:
+        random.shuffle(files)
+        files = files[:max_N]
 
     for p in inputs:
         if not Path(p).exists(): raise NotADirectoryError(f"Invalid path: {p}")

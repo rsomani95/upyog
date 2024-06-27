@@ -1,5 +1,19 @@
-from upyog.imports import *
+import PIL.features as PILFeatures
+
+import warnings
+import re
+import shutil
+import json
+import os
+import platform
+
+from datetime import datetime
+from pathlib import Path
 from upyog.os.read_files import PathLike, get_files
+from typing import List, Literal, Union, Optional
+from tqdm import tqdm
+from loguru import logger
+
 
 __all__ = [
     "load_json", "read_json", "check_pil_simd_usage", "sanitise_filename", "get_file_size",
@@ -31,6 +45,7 @@ def write_text(text: str, save_path: PathLike):
 
 
 def check_pil_simd_usage():
+    import PIL
     pil_version = PIL.__version__
 
     if not "post" in pil_version:
@@ -46,6 +61,8 @@ def check_pil_simd_usage():
 
 
 def check_corrupted_images(filepaths: List[PathLike], verbose=True) -> List[PathLike]:
+    from PIL import Image
+
     corrupted = []
     for f in tqdm(filepaths, "Scanning files for corruptions", disable=not verbose):
         try:    Image.open(f)
@@ -125,3 +142,35 @@ def convert_number_to_human_readable_format(number: Union[int, float], approx=Tr
 def is_platform_macos() -> bool:   return platform.system().lower() == "darwin"
 def is_platform_windows() -> bool: return platform.system().lower() == "windows"
 def is_platform_linux() -> bool:   return platform.system().lower() == "linux"
+
+
+def restore_symlink(f: Path):
+    f = Path(f)
+    if not f.is_symlink():
+        return f
+
+    orig = f.resolve()
+
+    if not orig.exists():
+        logger.warning(f"Failed to find original file {orig}")
+        return f
+
+    # Create a temporary filename in the same directory
+    temp_file = f.with_name(f.name + ".temp")
+
+    try:
+        # Copy the original file to the temporary location
+        shutil.copy2(orig, temp_file)
+
+        # Remove the symlink
+        f.unlink()
+
+        # Rename the temporary file to the original symlink name
+        temp_file.rename(f)
+
+    except Exception as e:
+        logger.error(f"Failed to restore symlink {f}: {str(e)}")
+        if temp_file.exists():
+            temp_file.unlink()  # Clean up the temporary file if it exists
+
+    return f

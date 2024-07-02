@@ -1,4 +1,6 @@
 ## Unreleased
+
+## 0.7.11 -- 2 Jul 2024
 * Add `restore_symlink`
 * Strict imports for `upyog.os.utils`
 

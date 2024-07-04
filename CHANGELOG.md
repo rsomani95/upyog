@@ -1,4 +1,5 @@
 ## Unreleased
+* Patch `.to_base64()` to `PIL.Image.Image` class to return a base64 encoded string to use in sending images over http requests
 
 ## 0.7.11 -- 2 Jul 2024
 * Add `restore_symlink`

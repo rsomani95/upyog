@@ -42,7 +42,7 @@ def img_filepath_or_url_to_base64(
         img = Image.open(img_filepath_or_url)
         if image_WH:
             img = resize_with_padding(img, image_WH)
-        return image_to_base64(img)
+        return pil_image_to_base64(img)
 
 
 # TODO: Test

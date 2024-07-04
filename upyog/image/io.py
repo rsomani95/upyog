@@ -1,6 +1,6 @@
 from upyog.imports import *
 
-__all__ = ["load_image", "resize_with_padding", "image_to_base64"]
+__all__ = ["load_image", "resize_with_padding", "pil_image_to_base64"]
 
 
 def load_image(fn, mode: Optional[str] = "RGB") -> Image.Image:
@@ -18,6 +18,11 @@ def resize_pad(
     fill: int = 0,
 ):
     return resize_with_padding(self, size_WH, fill, pad_location)
+
+
+@fastcore.patch
+def to_base64(self: Image.Image):
+    return pil_image_to_base64(self)
 
 
 def get_ratio(from_WH, to_WH) -> np.ndarray:
@@ -63,7 +68,7 @@ def resize_with_padding(
     return padded_img
 
 
-def image_to_base64(img: Image.Image) -> str:
+def pil_image_to_base64(img: Image.Image) -> str:
     "Convert a PIL image to a base64 encoded string"
     buffered = io.BytesIO()
     img.save(buffered, format="JPEG")

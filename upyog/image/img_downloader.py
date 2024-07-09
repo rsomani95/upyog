@@ -96,7 +96,7 @@ def download_image(
 def download_images(
     i: P("Input folder with url .txt files") = None,  # type: ignore
     o: P("Output folder") = None,  # type: ignore
-    max_threads: P("Max. no. of threads") = os.cpu_count(),  # type: ignore,
+    max_threads: P("Max. no. of threads", int) = os.cpu_count(),  # type: ignore,
     max_retries: P("No. of times to retry downloading an image if we fail", int) = 2,  # type: ignore,
 ):
     """

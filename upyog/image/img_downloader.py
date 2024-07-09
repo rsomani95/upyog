@@ -28,6 +28,7 @@ class DownloadResult:
 def download_image(
     url_file: PathLike,
     output_path: PathLike,
+    convert_rgb: bool = True,
 ) -> DownloadResult:
     """
     Download an image from a URL and save it to the output path.
@@ -48,27 +49,43 @@ def download_image(
 
         image_data = response.content
         try:
-            Image.open(BytesIO(image_data)).verify()
+            image = Image.open(BytesIO(image_data))
+            # NOTE: Calling `.verify()` invalidates the image and needs it to be
+            # re-loaded. We'll end up catching this error on `.save()` instead
+            # image.verify()  
+
         except:
             return DownloadResult(url_file, False, "Invalid image data")
 
-        file_name = (
-            output_path / url_file.with_suffix(Path(urlparse(url).path).suffix).name
-        )
-        with open(file_name, "wb") as file:
-            file.write(image_data)
+        try:
+            if convert_rgb:
+                image = image.convert("RGB")
+                extension = "jpg"
+
+            else:
+                extension = image.format.lower()
+                if extension in ["jpeg", ""]:
+                    extension = "jpg"
+
+            file_name = output_path / f"{url_file.stem.replace('.url', '')}.{extension}"
+            image.save(file_name)
+
+        except Exception as e:
+            return DownloadResult(url_file, False, str(e))
 
         return DownloadResult(url_file, True, None)
+
     except requests.exceptions.RequestException as e:
         return DownloadResult(url_file, False, str(e))
+
     except Exception as e:
         return DownloadResult(url_file, False, str(e))
 
 
 @call_parse
 def download_images(
-    folder_path: P("Input folder with url .txt files") = None,  # type: ignore
-    output_path: P("Output folder") = None,  # type: ignore
+    i: P("Input folder with url .txt files") = None,  # type: ignore
+    o: P("Output folder") = None,  # type: ignore
     max_threads: P("Max. no. of threads") = os.cpu_count(),  # type: ignore
 ):
     """
@@ -79,8 +96,11 @@ def download_images(
         output_path: Path to the output folder for saving downloaded images.
         max_threads: Maximum number of threads to use for downloading.
     """
-    assert folder_path
-    assert output_path
+    assert i
+    assert o
+
+    folder_path = i
+    output_path = o
 
     url_files = list(Path(folder_path).glob("*.url.txt"))
     total_files = len(url_files)

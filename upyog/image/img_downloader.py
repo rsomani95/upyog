@@ -1,24 +1,34 @@
 import concurrent.futures
 import os
+
+from dataclasses import asdict, dataclass
 from io import BytesIO
 from pathlib import Path
+from typing import Union
 from urllib.parse import urlparse
-from typing import Tuple, Union
+
 
 import pandas as pd
 import requests
+
 from PIL import Image
 from tqdm import tqdm
-from upyog.cli import call_parse, P
-
+from upyog.cli import P, call_parse
 
 PathLike = Union[str, Path]
+
+
+@dataclass
+class DownloadResult:
+    url_file: PathLike
+    success: bool
+    reason: Union[str, None]
 
 
 def download_image(
     url_file: PathLike,
     output_path: PathLike,
-) -> Tuple[PathLike, bool, Union[str, None]]:
+) -> DownloadResult:
     """
     Download an image from a URL and save it to the output path.
 
@@ -27,7 +37,7 @@ def download_image(
         output_path: Path to the output directory.
 
     Returns:
-        A tuple containing the URL file path, success status, and error reason (if any).
+        A DownloadResult object containing the URL file path, success status, and error reason (if any).
     """
     try:
         with open(url_file, "r") as file:
@@ -40,7 +50,7 @@ def download_image(
         try:
             Image.open(BytesIO(image_data)).verify()
         except:
-            return url_file, False, "Invalid image data"
+            return DownloadResult(url_file, False, "Invalid image data")
 
         file_name = (
             output_path / url_file.with_suffix(Path(urlparse(url).path).suffix).name
@@ -48,11 +58,11 @@ def download_image(
         with open(file_name, "wb") as file:
             file.write(image_data)
 
-        return url_file, True, None
+        return DownloadResult(url_file, True, None)
     except requests.exceptions.RequestException as e:
-        return url_file, False, str(e)
+        return DownloadResult(url_file, False, str(e))
     except Exception as e:
-        return url_file, False, str(e)
+        return DownloadResult(url_file, False, str(e))
 
 
 @call_parse
@@ -89,16 +99,14 @@ def download_images(
             total=total_files, unit="file", desc="Downloading images"
         ) as progress:
             for future in concurrent.futures.as_completed(futures):
-                url_file, success, reason = future.result()
+                result = future.result()
                 progress.update(1)
                 progress.set_postfix_str(
                     f"{progress.n}/{total_files} ({progress.n / total_files * 100:.2f}%)"
                 )
-                results.append(
-                    {"url_file": str(url_file), "success": success, "reason": reason}
-                )
+                results.append(result)
 
-    df = pd.DataFrame(results)
+    df = pd.DataFrame([asdict(result) for result in results])
     success_count = df["success"].sum()
     success_rate = success_count / total_files * 100
     print(

@@ -3,17 +3,32 @@ import os
 from io import BytesIO
 from pathlib import Path
 from urllib.parse import urlparse
+from typing import Tuple, Union
 
 import pandas as pd
 import requests
 from PIL import Image
-from rich.progress import Progress
-from rich import print
+from tqdm import tqdm
 from upyog.cli import call_parse, P
-from typing import Union
 
 
-def download_image(url_file: Union[str, Path], output_path: Path):
+PathLike = Union[str, Path]
+
+
+def download_image(
+    url_file: PathLike,
+    output_path: PathLike,
+) -> Tuple[PathLike, bool, Union[str, None]]:
+    """
+    Download an image from a URL and save it to the output path.
+
+    Args:
+        url_file: Path to the file containing the image URL.
+        output_path: Path to the output directory.
+
+    Returns:
+        A tuple containing the URL file path, success status, and error reason (if any).
+    """
     try:
         with open(url_file, "r") as file:
             url = file.read().strip()
@@ -43,9 +58,17 @@ def download_image(url_file: Union[str, Path], output_path: Path):
 @call_parse
 def download_images(
     folder_path: P("Input folder with url .txt files") = None,  # type: ignore
-    output_path: P("Output folder") = None,# type: ignore
-    max_threads: P("Max. no. of threads") = os.cpu_count(),# type: ignore
+    output_path: P("Output folder") = None,  # type: ignore
+    max_threads: P("Max. no. of threads") = os.cpu_count(),  # type: ignore
 ):
+    """
+    Download images from URL files in a folder using multi-threading.
+
+    Args:
+        folder_path: Path to the input folder containing URL files.
+        output_path: Path to the output folder for saving downloaded images.
+        max_threads: Maximum number of threads to use for downloading.
+    """
     assert folder_path
     assert output_path
 
@@ -56,20 +79,21 @@ def download_images(
     output_path.mkdir(parents=True, exist_ok=True)
 
     results = []
-    with Progress() as progress:
-        download_task = progress.add_task(
-            "[green]Downloading images...", total=total_files
-        )
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_threads) as executor:
+        futures = [
+            executor.submit(download_image, url_file, output_path)
+            for url_file in url_files
+        ]
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=max_threads) as executor:
-            futures = [
-                executor.submit(download_image, url_file, output_path)
-                for url_file in url_files
-            ]
-
+        with tqdm(
+            total=total_files, unit="file", desc="Downloading images"
+        ) as progress:
             for future in concurrent.futures.as_completed(futures):
                 url_file, success, reason = future.result()
-                progress.update(download_task, advance=1)
+                progress.update(1)
+                progress.set_postfix_str(
+                    f"{progress.n}/{total_files} ({progress.n / total_files * 100:.2f}%)"
+                )
                 results.append(
                     {"url_file": str(url_file), "success": success, "reason": reason}
                 )

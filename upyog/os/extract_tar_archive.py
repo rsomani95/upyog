@@ -66,20 +66,23 @@ def extract_and_organize_tarfiles(
     for tar_file in progress_bar:
         progress_bar.set_description(f"Extracting {tar_file.name}")
 
-        with tempfile.TemporaryDirectory() as temp_dir:
-            with tarfile.open(tar_file, "r") as tar:
-                tar.extractall(temp_dir)
-            temp_path = Path(temp_dir)
+        try:
+            with tempfile.TemporaryDirectory() as temp_dir:
+                with tarfile.open(tar_file, "r") as tar:
+                    tar.extractall(temp_dir)
+                temp_path = Path(temp_dir)
 
-            for file_path in temp_path.iterdir():
-                if file_path.is_file():
-                    suffix = "".join(file_path.suffixes)
+                for file_path in temp_path.iterdir():
+                    if file_path.is_file():
+                        suffix = "".join(file_path.suffixes)
 
-                    if suffix in extract_structure:
-                        subdir = extract_structure[suffix]
-                        shutil.move(str(file_path), str(output_dir.joinpath(subdir, file_path.name)))
-                    else:
-                        print(f"Warning: Unexpected suffix '{suffix}' found in file '{file_path.name}'")
+                        if suffix in extract_structure:
+                            subdir = extract_structure[suffix]
+                            shutil.move(str(file_path), str(output_dir.joinpath(subdir, file_path.name)))
+                        else:
+                            print(f"Warning: Unexpected suffix '{suffix}' found in file '{file_path.name}'")
+        except tarfile.ReadError:
+            print(f"Failed to extract {file_path.name}")
 
     print("\n\n  Extraction and organization complete.")
     print("-----------------------------------------")

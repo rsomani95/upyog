@@ -2,6 +2,7 @@ import shutil
 import tarfile
 import tempfile
 
+from copy import deepcopy
 from collections import defaultdict
 from pathlib import Path
 from tqdm import tqdm
@@ -17,8 +18,10 @@ def extract_and_organize_tarfiles(
     extract_structure: P("(Optional) Path to a JSON file that captures the output structure. If not provided, we attempt to detect it automatically") = None,
 ):
     """
-    This program extracts and organizes files from .tar archives. It was originally designed to be used with the DataComp dataset,
-    where each tar file has a group of files per 'base' file.
+    ----- extract-and-organise-tar-archive -----
+
+    This program extracts and organizes files from .tar archives. It was originally designed to be
+    used with the DataComp dataset, where each tar file has a group of files per 'base' file.
 
     The `extract_structure` can be provided beforehand via a JSON file like this:
     {
@@ -39,6 +42,7 @@ def extract_and_organize_tarfiles(
     print("Starting extraction and organization process...")
 
     tar_files = get_files(root_dir, extensions=[".tar"])
+    tar_files.sort()
     total_files = len(tar_files)
     print(f"Found {total_files} .tar files to process.")
 
@@ -75,7 +79,7 @@ def extract_and_organize_tarfiles(
                     else:
                         print(f"Warning: Unexpected suffix '{suffix}' found in file '{file_path.name}'")
 
-    print("  Extraction and organization complete.")
+    print("\n\n  Extraction and organization complete.")
     print("-----------------------------------------")
     print(f"Total .tar files processed: {len(tar_files)}")
     for subdir in extract_structure.values():
@@ -83,16 +87,20 @@ def extract_and_organize_tarfiles(
 
 
 def detect_structure(temp_path: Path) -> dict:
-    structure = defaultdict(set)
-    for file_path in temp_path.iterdir():
-        if file_path.is_file():
-            suffix = "".join(file_path.suffixes)
-            structure[suffix].add(file_path.stem)
+    files = get_files(temp_path)
+    unique_file_extensions = set(["".join(f.suffixes) for f in files])
+    unique_file_extensions = sorted(unique_file_extensions)
 
     extract_structure = {}
-    for suffix, stems in structure.items():
-        if len(stems) == len(list(temp_path.iterdir())):
-            subdir = f"{suffix[1:]}_data"
-            extract_structure[suffix] = subdir
+    for ext in unique_file_extensions:
+        assert ext.startswith(".")
+
+        orig_ext = deepcopy(ext)
+
+        ext = ext[1:]
+        ext = ext.replace(".", "_")
+        ext = ext + "__data"
+
+        extract_structure[orig_ext] = ext
 
     return extract_structure

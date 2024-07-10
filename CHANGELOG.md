@@ -1,5 +1,6 @@
 ## Unreleased
 * Add image downloader tool
+* Add tar archive extractor tool
 
 ## 0.7.12 -- 8 Jul 2024
 * Patch `.to_base64()` to `PIL.Image.Image` class to return a base64 encoded string to use in sending images over http requests

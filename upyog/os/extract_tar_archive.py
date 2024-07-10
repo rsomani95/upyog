@@ -6,7 +6,7 @@ from copy import deepcopy
 from collections import defaultdict
 from pathlib import Path
 from tqdm import tqdm
-from rich import print
+from rich import print, print_json
 from upyog.cli import call_parse, P
 from upyog.os import get_files, load_json
 
@@ -53,7 +53,9 @@ def extract_and_organize_tarfiles(
                 tar.extractall(temp_dir)
             temp_path = Path(temp_dir)
             extract_structure = detect_structure(temp_path)
-        print(f"Detected structure:\n{extract_structure}")
+
+        print("Detected structure:")
+        print_json(data=extract_structure)
 
     # Create directories based on the extract structure
     for subdir in extract_structure.values():

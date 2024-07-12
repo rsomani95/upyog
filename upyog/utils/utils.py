@@ -1,10 +1,10 @@
-import numpy as np
-import uuid
 import math
-
-from typing import Union, List, Any, Tuple, Collection
-from collections.abc import Iterable
+import uuid
 from itertools import islice
+from typing import Any, Collection, Iterable, List, Tuple, Union
+
+import numpy as np
+
 
 __all__ = [
     "flatten",
@@ -104,4 +104,6 @@ def convert_size(size_bytes: int) -> str:
 
 
 def is_collection(x):
+    from collections.abc import Iterable
+
     return isinstance(x, Iterable) and not isinstance(x, (str, bytes))

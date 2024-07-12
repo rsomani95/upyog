@@ -28,6 +28,11 @@ def load_json(path: PathLike):
     return json.loads(Path(path).read_bytes())
 
 
+def load_txt(path: PathLike) -> str:
+    "Load a text file"
+    return Path(path).read_text()
+
+
 def read_json(path: PathLike):
     return load_json(path)
 

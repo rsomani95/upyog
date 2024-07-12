@@ -1,10 +1,23 @@
-from upyog.imports import *
+import numpy as np
+import uuid
+import math
+
+from typing import Union, List, Any, Tuple, Collection
+from collections.abc import Iterable
 from itertools import islice
 
 __all__ = [
-    "flatten", "uniqueify",
-    "chunk", "notnone", "lmap", "allequal", "zipsafe", "convert_size", "convert_to_tuple",
+    "flatten",
+    "uniqueify",
+    "chunk",
+    "notnone",
+    "lmap",
+    "allequal",
+    "zipsafe",
+    "convert_size",
+    "convert_to_tuple",
     "convert_to_list",
+    "is_collection",
 ]
 
 
@@ -82,9 +95,13 @@ def zipsafe(*its):
 def convert_size(size_bytes: int) -> str:
     "Convert bytes into appropriate unit and return a human readable string for file size"
     if size_bytes == 0:
-       return "0B"
+        return "0B"
     size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
     i = int(math.floor(math.log(size_bytes, 1024)))
     p = math.pow(1024, i)
     s = round(size_bytes / p, 2)
     return "%s %s" % (s, size_name[i])
+
+
+def is_collection(x):
+    return isinstance(x, Iterable) and not isinstance(x, (str, bytes))

@@ -203,9 +203,15 @@ def move_files(
 
     before_moving = get_files(out_path)
     for f in tqdm(files):
-        if move: shutil.move(f, out_path / f.name)
-        else:    shutil.copy(f, out_path / f.name)
+        if move:
+            shutil.move(f, out_path / f.name)
+        else:
+            try:
+                shutil.copy(f, out_path / f.name)
+            # If file already exists, no-op
+            except shutil.SameFileError:
+                pass
     after_moving = get_files(out_path)
     new_files = set(after_moving) - set(before_moving)
 
-    logger.info(f"Of {len(files)} files from input folders, moved {len(new_files)} files to output folder")
+    logger.info(f"moved {len(files)}/{len(new_files)} files to output folder")

@@ -1,4 +1,6 @@
 ## Unreleased
+
+## 0.7.13 -- 4 Sep 2024
 * Add simple utils: `is_collection`, `load_txt`
 * Cleanup imports in some places
 * Add image downloader tool

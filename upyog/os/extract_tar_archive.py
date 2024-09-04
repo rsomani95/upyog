@@ -3,7 +3,6 @@ import tarfile
 import tempfile
 
 from copy import deepcopy
-from collections import defaultdict
 from pathlib import Path
 from tqdm import tqdm
 from rich import print, print_json
@@ -16,6 +15,7 @@ def extract_and_organize_tarfiles(
     root_dir: P("Path to the root directory with the `.tar` files"),
     output_dir: P("(Optional) Path to the output dir. If not provided, outputs are saved in `root_dir`") = None,
     extract_structure: P("(Optional) Path to a JSON file that captures the output structure. If not provided, we attempt to detect it automatically") = None,
+    force_overwrite: P("(Optional) Force overwrite of existing files") = False,
 ):
     """
     ----- extract-and-organise-tar-archive -----
@@ -61,10 +61,27 @@ def extract_and_organize_tarfiles(
     for subdir in extract_structure.values():
         output_dir.joinpath(subdir).mkdir(parents=True, exist_ok=True)
 
+    # Function to check if a tar file has already been extracted
+    def is_tar_extracted(tar_file, output_dir, extract_structure):
+        with tarfile.open(tar_file, "r") as tar:
+            for member in tar.getmembers():
+                suffix = "".join(Path(member.name).suffixes)
+                if suffix in extract_structure:
+                    subdir = extract_structure[suffix]
+                    output_file = output_dir.joinpath(subdir, Path(member.name).name)
+                    if not output_file.exists():
+                        return False
+        return True
+
     # Loop through all .tar files
     progress_bar = tqdm(tar_files, "Extracting .tar files", unit="file")
     for tar_file in progress_bar:
-        progress_bar.set_description(f"Extracting {tar_file.name}")
+        progress_bar.set_description(f"Processing {tar_file.name}")
+
+        # Check if the tar file has already been extracted
+        if is_tar_extracted(tar_file, output_dir, extract_structure) and not force_overwrite:
+            progress_bar.write(f"Skipping {tar_file.name} (already extracted)")
+            continue
 
         try:
             with tempfile.TemporaryDirectory() as temp_dir:
@@ -78,11 +95,16 @@ def extract_and_organize_tarfiles(
 
                         if suffix in extract_structure:
                             subdir = extract_structure[suffix]
-                            shutil.move(str(file_path), str(output_dir.joinpath(subdir, file_path.name)))
+                            dest_path = output_dir.joinpath(subdir, file_path.name)
+                            
+                            if dest_path.exists() and not force_overwrite:
+                                progress_bar.write(f"Skipping {file_path.name} (already exists)")
+                            else:
+                                shutil.move(str(file_path), str(dest_path))
                         else:
-                            print(f"Warning: Unexpected suffix '{suffix}' found in file '{file_path.name}'")
+                            progress_bar.write(f"Warning: Unexpected suffix '{suffix}' found in file '{file_path.name}'")
         except tarfile.ReadError:
-            print(f"Failed to extract {file_path.name}")
+            progress_bar.write(f"Failed to extract {tar_file.name}")
 
     print("\n\n  Extraction and organization complete.")
     print("-----------------------------------------")

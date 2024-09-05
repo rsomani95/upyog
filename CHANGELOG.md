@@ -1,4 +1,5 @@
-## Unreleased
+## 0.7.14 -- 4 Sep 2024
+* Improve image downloader to skip already downloaded files
 
 ## 0.7.13 -- 4 Sep 2024
 * Add simple utils: `is_collection`, `load_txt`

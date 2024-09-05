@@ -31,7 +31,7 @@ class DownloadResult:
 def download_image(
     url_file: PathLike,
     output_path: PathLike,
-    convert_rgb: bool = not True,
+    convert_rgb: bool = True,
     max_retries: int = 3,
 ) -> DownloadResult:
     """
@@ -40,12 +40,23 @@ def download_image(
     Args:
         url_file: Path to the file containing the image URL.
         output_path: Path to the output directory.
-        convert_rgb: Whether to convert the image to RGB format (default: False).
+        convert_rgb: Whether to convert the image to RGB format (default: True).
         max_retries: Maximum number of retries in case of download failure (default: 3).
 
     Returns:
         A DownloadResult object containing the URL file path, success status, and error reason (if any).
     """
+    url_file = Path(url_file)
+    output_path = Path(output_path)
+    
+    # Determine the potential file name
+    extension = "jpg" if convert_rgb else "png"  # Default to png if not converting to RGB
+    file_name = output_path / f"{url_file.stem.replace('.url', '')}.{extension}"
+    
+    # Check if the file already exists
+    if file_name.exists():
+        return DownloadResult(url_file, True, "File already exists")
+
     retries = 0
     while retries < max_retries:
         try:
@@ -58,24 +69,18 @@ def download_image(
             image_data = response.content
             try:
                 image = Image.open(BytesIO(image_data))
-                # NOTE: Calling `.verify()` invalidates the image and needs it to be
-                # re-loaded. We'll end up catching this error on `.save()` instead
-                # image.verify()  
-
             except:
                 return DownloadResult(url_file, False, "Invalid image data")
 
             try:
                 if convert_rgb:
                     image = image.convert("RGB")
-                    extension = "jpg"
-
                 else:
                     extension = image.format.lower()
                     if extension in ["jpeg", ""]:
                         extension = "jpg"
+                    file_name = output_path / f"{url_file.stem.replace('.url', '')}.{extension}"
 
-                file_name = output_path / f"{url_file.stem.replace('.url', '')}.{extension}"
                 image.save(file_name)
 
             except Exception as e:
@@ -130,7 +135,7 @@ def download_images(
         ]
 
         with tqdm(
-            total=total_files, unit="file", desc="Downloading images"
+            total=total_files, unit="file", desc="Processing images"
         ) as progress:
             for future in concurrent.futures.as_completed(futures):
                 result = future.result()
@@ -144,13 +149,19 @@ def download_images(
 
     df = pd.DataFrame([asdict(result) for result in results])
     success_count = df["success"].sum()
+    already_exists_count = df[df["reason"] == "File already exists"].shape[0]
+    new_downloads_count = success_count - already_exists_count
     success_rate = success_count / total_files * 100
-    images_per_second = success_count / total_time
+    images_per_second = new_downloads_count / total_time
     print(
-        f"\nDownloaded {success_count} out of {total_files} images ({success_rate:.2f}% success rate)"
+        f"\nProcessed {total_files} images:"
     )
+    print(f"  - Successfully downloaded: {new_downloads_count}")
+    print(f"  - Already existing: {already_exists_count}")
+    print(f"  - Failed: {total_files - success_count}")
+    print(f"Overall success rate: {success_rate:.2f}%")
     print(f"Total time taken: {total_time:.2f} seconds")
-    print(f"Images downloaded per second: {images_per_second:.2f}")
+    print(f"New images downloaded per second: {images_per_second:.2f}")
 
     output_file = output_path / "download_results.csv"
     df.to_csv(output_file, index=False)

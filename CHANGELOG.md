@@ -1,3 +1,6 @@
+## Unreleased
+* ML util to compare 1d vectors
+
 ## 0.7.14 -- 4 Sep 2024
 * Improve image downloader to skip already downloaded files
 

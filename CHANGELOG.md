@@ -1,4 +1,5 @@
 ## Unreleased
+* New `Dictionary` class for dot access
 * ML util to compare 1d vectors
 
 ## 0.7.14 -- 4 Sep 2024

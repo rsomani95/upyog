@@ -1,4 +1,7 @@
-## Unreleased
+## 0.7.16 -- 22 Jan, 2026
+* Bugfix accidentally overriding python's `dict`
+
+## 0.7.15 -- 8 Dec, 2025
 * New `Dictionary` class for dot access
 * ML util to compare 1d vectors
 

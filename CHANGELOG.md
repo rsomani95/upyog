@@ -1,3 +1,6 @@
+## Unreleased
+* `compose_files_into_zip_archive` now uses a temporary directory
+
 ## 0.7.16 -- 22 Jan, 2026
 * Bugfix accidentally overriding python's `dict`
 

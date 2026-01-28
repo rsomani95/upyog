@@ -9,17 +9,19 @@ def zip_folder(path: PathLike):
 
 def compose_files_into_zip_archive(
     files: List[PathLike],
-    out_dir: PathLike,
-    zip_name: str = "Archive",
+    output_path: PathLike,
 ):
-    out_dir = Path(out_dir)
-    out_dir.mkdir(exist_ok=True)
-    zip_name = zip_name + ".zip"
+    import tempfile
 
-    for file in files:
-        shutil.copy(file, str(out_dir / zip_name))
+    output_path = Path(output_path)
+    assert output_path.suffix == ".zip", f"output_path must end with .zip, got {output_path}"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    zipfile = zip_folder(out_dir)
-    shutil.rmtree(out_dir)
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        for file in files:
+            shutil.copy(file, tmp_path)
 
-    return zipfile
+        archive_path = shutil.make_archive(str(output_path.with_suffix("")), "zip", tmp_path)
+
+    return archive_path

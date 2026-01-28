@@ -12,14 +12,16 @@ def compose_files_into_zip_archive(
     out_dir: PathLike,
     zip_name: str = "Archive",
 ):
+    import tempfile
+
     out_dir = Path(out_dir)
     out_dir.mkdir(exist_ok=True)
-    zip_name = zip_name + ".zip"
 
-    for file in files:
-        shutil.copy(file, str(out_dir / zip_name))
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        for file in files:
+            shutil.copy(file, tmp_path)
 
-    zipfile = zip_folder(out_dir)
-    shutil.rmtree(out_dir)
+        archive_path = shutil.make_archive(str(out_dir / zip_name), "zip", tmp_path)
 
-    return zipfile
+    return archive_path

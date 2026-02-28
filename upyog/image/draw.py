@@ -337,8 +337,14 @@ def draw_text_within_xyxy(
 
 
 # Source: https://www.haptik.ai/tech/putting-text-on-images-using-python-part2/
+def _font_text_size(font: ImageFont.FreeTypeFont, text: str):
+    """Return (width, height) of text when drawn with font. Uses getbbox (Pillow 8+); getsize was removed in Pillow 10."""
+    bbox = font.getbbox(text)
+    return bbox[2] - bbox[0], bbox[3] - bbox[1]
+
+
 def get_line_height(font: ImageFont.FreeTypeFont):
-    return font.getsize("hg")[1]
+    return _font_text_size(font, "hg")[1]
 
 
 # fmt: off
@@ -435,7 +441,7 @@ def text_wrap(text, font, max_width):
     # If the width of the text is smaller than image width
     # we don't need to split it, just add it to the lines array
     # and return
-    if font.getsize(text)[0] <= max_width:
+    if _font_text_size(font, text)[0] <= max_width:
         lines.append(text)
     else:
         # split the line by spaces to get words
@@ -444,7 +450,7 @@ def text_wrap(text, font, max_width):
         # append every word to a line while its width is shorter than image width
         while i < len(words):
             line = ""
-            while i < len(words) and font.getsize(line + words[i])[0] <= max_width:
+            while i < len(words) and _font_text_size(font, line + words[i])[0] <= max_width:
                 line = line + words[i] + " "
                 i += 1
             if not line:
